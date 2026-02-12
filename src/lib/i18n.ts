@@ -89,6 +89,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorsWere: "Los impostores eran:",
     theSecretWordWas: "La palabra secreta era:",
     categories: {
+      "futbolistas-internacionales": "Futbolistas Internacionales (Masculino)",
+      "futbolistas-chilenos": "Futbolistas Chilenos",
       lugares: "Lugares",
       comidas: "Comidas",
       objetos: "Objetos",
@@ -123,6 +125,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorsWere: "The impostors were:",
     theSecretWordWas: "The secret word was:",
     categories: {
+      "futbolistas-internacionales": "International Footballers (Male)",
+      "futbolistas-chilenos": "Chilean Footballers",
       lugares: "Places",
       comidas: "Foods",
       objetos: "Objects",
@@ -157,6 +161,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorsWere: "Os impostores eram:",
     theSecretWordWas: "A palavra secreta era:",
     categories: {
+      "futbolistas-internacionales": "Futebolistas Internacionais (Masculino)",
+      "futbolistas-chilenos": "Futebolistas Chilenos",
       lugares: "Lugares",
       comidas: "Comidas",
       objetos: "Objetos",
@@ -191,6 +197,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorsWere: "Gli impostori erano:",
     theSecretWordWas: "La parola segreta era:",
     categories: {
+      "futbolistas-internacionales": "Calciatori Internazionali (Maschile)",
+      "futbolistas-chilenos": "Calciatori Cileni",
       lugares: "Luoghi",
       comidas: "Cibi",
       objetos: "Oggetti",
@@ -225,6 +233,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorsWere: "Les imposteurs étaient :",
     theSecretWordWas: "Le mot secret était :",
     categories: {
+      "futbolistas-internacionales": "Footballeurs Internationaux (Masculin)",
+      "futbolistas-chilenos": "Footballeurs Chiliens",
       lugares: "Lieux",
       comidas: "Aliments",
       objetos: "Objets",
