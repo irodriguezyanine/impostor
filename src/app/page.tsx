@@ -36,8 +36,9 @@ export default function HomePage() {
   const maxImpostors = Math.max(1, Math.min(3, validPlayers.length - 2));
 
   return (
-    <div className="min-h-screen bg-background pb-44 safe-bottom">
-      <div className="max-w-lg mx-auto px-4 pt-6 pb-8 safe-top">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="max-w-lg mx-auto px-4 pt-6 pb-8 safe-top">
         <header className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-gray-900">{t.appTitle}</h1>
           <LanguageSelector />
@@ -93,9 +94,11 @@ export default function HomePage() {
             <CategorySelector />
           </div>
         </motion.main>
+        <div className="h-24" />
+        </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 pt-6 bg-background/95 backdrop-blur-sm border-t border-gray-200/50 safe-bottom">
+      <div className="flex-shrink-0 p-4 pt-6 bg-background border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] safe-bottom">
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={handleStart}

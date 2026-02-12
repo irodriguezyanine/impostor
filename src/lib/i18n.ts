@@ -91,6 +91,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categories: {
       "futbolistas-internacionales": "Futbolistas Internacionales (Masculino)",
       "futbolistas-chilenos": "Futbolistas Chilenos",
+      "universidad-catolica": "Universidad Católica (De siempre)",
+      "champions-league": "Champions League",
+      reggaeton: "Reggaeton y Urbano Latino",
       lugares: "Lugares",
       comidas: "Comidas",
       objetos: "Objetos",
@@ -127,6 +130,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categories: {
       "futbolistas-internacionales": "International Footballers (Male)",
       "futbolistas-chilenos": "Chilean Footballers",
+      "universidad-catolica": "Universidad Católica (All-time)",
+      "champions-league": "Champions League",
+      reggaeton: "Reggaeton & Urban Latin",
       lugares: "Places",
       comidas: "Foods",
       objetos: "Objects",
@@ -163,6 +169,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categories: {
       "futbolistas-internacionales": "Futebolistas Internacionais (Masculino)",
       "futbolistas-chilenos": "Futebolistas Chilenos",
+      "universidad-catolica": "Universidad Católica (De sempre)",
+      "champions-league": "Champions League",
+      reggaeton: "Reggaeton e Urbano Latino",
       lugares: "Lugares",
       comidas: "Comidas",
       objetos: "Objetos",
@@ -199,6 +208,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categories: {
       "futbolistas-internacionales": "Calciatori Internazionali (Maschile)",
       "futbolistas-chilenos": "Calciatori Cileni",
+      "universidad-catolica": "Universidad Católica (Di sempre)",
+      "champions-league": "Champions League",
+      reggaeton: "Reggaeton e Urbano Latino",
       lugares: "Luoghi",
       comidas: "Cibi",
       objetos: "Oggetti",
@@ -235,6 +247,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categories: {
       "futbolistas-internacionales": "Footballeurs Internationaux (Masculin)",
       "futbolistas-chilenos": "Footballeurs Chiliens",
+      "universidad-catolica": "Universidad Católica (De toujours)",
+      "champions-league": "Champions League",
+      reggaeton: "Reggaeton et Urbain Latino",
       lugares: "Lieux",
       comidas: "Aliments",
       objetos: "Objets",

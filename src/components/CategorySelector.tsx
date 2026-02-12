@@ -35,7 +35,7 @@ export function CategorySelector() {
               onClick={() => toggleCategory(category)}
               whileTap={{ scale: 0.97 }}
               className={`
-                flex-shrink-0 flex flex-col items-center gap-2 p-4 min-w-[100px] rounded-2xl
+                flex-shrink-0 flex flex-col items-center gap-2 p-4 min-w-[120px] max-w-[160px] rounded-2xl
                 border-2 transition-all duration-200
                 ${
                   isSelected
