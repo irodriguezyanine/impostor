@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import type { Category } from "@/data/categories";
 import { CATEGORIES } from "@/data/categories";
@@ -15,31 +15,24 @@ function getCategoryDisplayName(
 }
 
 export function CategorySelector() {
-  const { selectedCategory, setSelectedCategory } = useGame();
+  const { selectedCategories, toggleCategory } = useGame();
   const t = useTranslations();
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold text-gray-800">
         {t.categorySelection}
       </h2>
-      <div
-        ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
+      <div className="flex flex-wrap gap-3">
         {CATEGORIES.map((category) => {
-          const isSelected = selectedCategory?.id === category.id;
+          const isSelected = selectedCategories.some((c) => c.id === category.id);
           const displayName = getCategoryDisplayName(category, t);
 
           return (
             <motion.button
               key={category.id}
               type="button"
-              onClick={() =>
-                setSelectedCategory(isSelected ? null : category)
-              }
+              onClick={() => toggleCategory(category)}
               whileTap={{ scale: 0.97 }}
               className={`
                 flex-shrink-0 flex flex-col items-center gap-2 p-4 min-w-[100px] rounded-2xl

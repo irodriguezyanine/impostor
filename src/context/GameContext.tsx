@@ -12,7 +12,7 @@ import type { Category } from "@/data/categories";
 import { CATEGORIES } from "@/data/categories";
 import { LOCALES, type Locale } from "@/lib/i18n";
 
-export type GamePhase = "setup" | "passing" | "revealing" | "playing";
+export type GamePhase = "setup" | "passing" | "revealing" | "playing" | "ended";
 
 export type PlayerRole = "civilian" | "impostor";
 
@@ -27,7 +27,7 @@ export type GameState = {
 
 type GameContextState = {
   players: string[];
-  selectedCategory: Category | null;
+  selectedCategories: Category[];
   impostorCount: 1 | 2 | 3;
   phase: GamePhase;
   gameState: GameState | null;
@@ -38,13 +38,14 @@ type GameContextValue = GameContextState & {
   addPlayer: (name?: string) => void;
   removePlayer: (index: number) => void;
   updatePlayer: (index: number, name: string) => void;
-  setSelectedCategory: (category: Category | null) => void;
+  toggleCategory: (category: Category) => void;
   setImpostorCount: (count: 1 | 2 | 3) => void;
   setLocale: (locale: Locale) => void;
   startGame: () => void;
   nextPlayer: () => void;
   revealRole: (playerName: string) => void;
   hideRole: () => void;
+  revealAndFinish: () => void;
   finishGame: () => void;
 };
 
@@ -78,7 +79,7 @@ function getStoredLocale(): Locale | null {
 
 const initialState: GameContextState = {
   players: ["", "", ""],
-  selectedCategory: null,
+  selectedCategories: [],
   impostorCount: 1,
   phase: "setup",
   gameState: null,
@@ -89,13 +90,14 @@ type Action =
   | { type: "ADD_PLAYER"; name?: string }
   | { type: "REMOVE_PLAYER"; index: number }
   | { type: "UPDATE_PLAYER"; index: number; name: string }
-  | { type: "SET_CATEGORY"; category: Category | null }
+  | { type: "TOGGLE_CATEGORY"; category: Category }
   | { type: "SET_IMPOSTOR_COUNT"; count: 1 | 2 | 3 }
   | { type: "SET_LOCALE"; locale: Locale }
   | { type: "START_GAME" }
   | { type: "NEXT_PLAYER" }
   | { type: "REVEAL_ROLE"; playerName: string }
   | { type: "HIDE_ROLE" }
+  | { type: "REVEAL_AND_FINISH" }
   | { type: "FINISH_GAME" };
 
 function gameReducer(state: GameContextState, action: Action): GameContextState {
@@ -119,8 +121,15 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         ),
       };
 
-    case "SET_CATEGORY":
-      return { ...state, selectedCategory: action.category };
+    case "TOGGLE_CATEGORY": {
+      const exists = state.selectedCategories.some((c) => c.id === action.category.id);
+      return {
+        ...state,
+        selectedCategories: exists
+          ? state.selectedCategories.filter((c) => c.id !== action.category.id)
+          : [...state.selectedCategories, action.category],
+      };
+    }
 
     case "SET_IMPOSTOR_COUNT":
       return { ...state, impostorCount: action.count };
@@ -130,13 +139,12 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
 
     case "START_GAME": {
       const validPlayers = state.players.filter((p) => p.trim() !== "");
-      if (validPlayers.length < 3 || !state.selectedCategory) return state;
+      if (validPlayers.length < 3 || state.selectedCategories.length === 0) return state;
       if (validPlayers.length - state.impostorCount < 2) return state;
 
-      const category = CATEGORIES.find(
-        (c) => c.id === state.selectedCategory!.id
-      ) ?? state.selectedCategory;
-      const words = category.words;
+      const category = getRandomElement(state.selectedCategories);
+      const cat = CATEGORIES.find((c) => c.id === category.id) ?? category;
+      const words = cat.words;
       if (words.length === 0) return state;
 
       const secretWord = getRandomElement(words);
@@ -218,6 +226,9 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       };
     }
 
+    case "REVEAL_AND_FINISH":
+      return { ...state, phase: "ended" };
+
     case "FINISH_GAME":
       return {
         ...initialState,
@@ -253,8 +264,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "UPDATE_PLAYER", index, name });
   }, []);
 
-  const setSelectedCategory = useCallback((category: Category | null) => {
-    dispatch({ type: "SET_CATEGORY", category });
+  const toggleCategory = useCallback((category: Category) => {
+    dispatch({ type: "TOGGLE_CATEGORY", category });
   }, []);
 
   const setImpostorCount = useCallback((count: 1 | 2 | 3) => {
@@ -286,6 +297,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "HIDE_ROLE" });
   }, []);
 
+  const revealAndFinish = useCallback(() => {
+    dispatch({ type: "REVEAL_AND_FINISH" });
+  }, []);
+
   const finishGame = useCallback(() => {
     dispatch({ type: "FINISH_GAME" });
   }, []);
@@ -295,13 +310,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     addPlayer,
     removePlayer,
     updatePlayer,
-    setSelectedCategory,
+    toggleCategory,
     setImpostorCount,
     setLocale,
     startGame,
     nextPlayer,
     revealRole,
     hideRole,
+    revealAndFinish,
     finishGame,
   };
 

@@ -95,10 +95,10 @@ export function GameCard({
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={onHide}
-              className="w-full py-4 px-6 rounded-2xl bg-gray-200 text-gray-800 font-bold flex items-center justify-center gap-2"
+              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2"
             >
               <EyeOff size={20} />
-              {t.hideReady}
+              {t.passToNextPlayer}
             </motion.button>
           </div>
         </motion.div>

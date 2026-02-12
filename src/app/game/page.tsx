@@ -14,6 +14,7 @@ export default function GamePage() {
     phase,
     gameState,
     finishGame,
+    revealAndFinish,
     revealRole,
     hideRole,
   } = useGame();
@@ -24,6 +25,12 @@ export default function GamePage() {
       router.replace("/");
     }
   }, [phase, router]);
+
+  const impostors = gameState
+    ? Object.entries(gameState.playerRoles)
+        .filter(([, role]) => role === "impostor")
+        .map(([name]) => name)
+    : [];
 
   if (!gameState) {
     return (
@@ -78,6 +85,49 @@ export default function GamePage() {
                 onHide={handleHide}
               />
             </motion.div>
+          ) : phase === "ended" ? (
+            <motion.div
+              key="ended"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6 pt-8"
+            >
+              <div className="bg-white rounded-3xl shadow-sm p-8 space-y-6">
+                <h2 className="text-xl font-bold text-gray-900 text-center">
+                  {t.theSecretWordWas}
+                </h2>
+                <p className="text-3xl font-bold text-primary text-center break-words">
+                  {gameState.secretWord}
+                </p>
+                <div className="border-t border-gray-200 pt-6">
+                  <h2 className="text-lg font-semibold text-red-600 mb-3 text-center">
+                    {t.impostorsWere}
+                  </h2>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {impostors.map((name) => (
+                      <span
+                        key={name}
+                        className="px-4 py-2 rounded-xl bg-red-100 text-red-700 font-bold"
+                      >
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  finishGame();
+                  router.push("/");
+                }}
+                className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2"
+              >
+                {t.backToHome}
+              </motion.button>
+            </motion.div>
           ) : (
             <motion.div
               key="playing"
@@ -105,13 +155,10 @@ export default function GamePage() {
 
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  finishGame();
-                  router.push("/");
-                }}
-                className="w-full py-4 rounded-2xl bg-gray-200 text-gray-800 font-bold flex items-center justify-center gap-2"
+                onClick={revealAndFinish}
+                className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 text-center"
               >
-                {t.finishGame}
+                {t.finishAndReveal}
               </motion.button>
             </motion.div>
           )}

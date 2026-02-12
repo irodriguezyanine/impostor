@@ -7,7 +7,7 @@ import { LocaleSync } from "@/components/LocaleSync";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Imposter Clone - Pasa y Juega",
+  title: "Impostor Chile - Pasa y Juega",
   description: "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
 };
 

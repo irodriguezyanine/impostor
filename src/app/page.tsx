@@ -14,7 +14,7 @@ export default function HomePage() {
   const router = useRouter();
   const {
     players,
-    selectedCategory,
+    selectedCategories,
     impostorCount,
     setImpostorCount,
     startGame,
@@ -24,7 +24,7 @@ export default function HomePage() {
   const validPlayers = players.filter((p) => p.trim() !== "");
   const canStart =
     validPlayers.length >= 3 &&
-    selectedCategory &&
+    selectedCategories.length > 0 &&
     validPlayers.length - impostorCount >= 2;
 
   const handleStart = () => {
@@ -36,8 +36,8 @@ export default function HomePage() {
   const maxImpostors = Math.max(1, Math.min(3, validPlayers.length - 2));
 
   return (
-    <div className="min-h-screen bg-background pb-32 safe-bottom">
-      <div className="max-w-lg mx-auto px-4 pt-6 safe-top">
+    <div className="min-h-screen bg-background pb-44 safe-bottom">
+      <div className="max-w-lg mx-auto px-4 pt-6 pb-8 safe-top">
         <header className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-gray-900">{t.appTitle}</h1>
           <LanguageSelector />
@@ -95,7 +95,7 @@ export default function HomePage() {
         </motion.main>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm safe-bottom">
+      <div className="fixed bottom-0 left-0 right-0 p-4 pt-6 bg-background/95 backdrop-blur-sm border-t border-gray-200/50 safe-bottom">
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={handleStart}
