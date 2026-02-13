@@ -13,6 +13,8 @@ export default function GamePage() {
   const {
     phase,
     gameState,
+    selectedCategories,
+    categoryVisibility,
     finishGame,
     revealAndFinish,
     restartCardView,
@@ -95,6 +97,10 @@ export default function GamePage() {
                 isRevealed={isRevealed}
                 role={currentRole}
                 secretWord={gameState.secretWord}
+                categoryNames={selectedCategories.map(
+                  (c) => t.categories[c.id] ?? c.name
+                )}
+                showCategories={categoryVisibility}
                 onReveal={handleReveal}
                 onHide={handleHide}
               />

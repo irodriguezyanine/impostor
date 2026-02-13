@@ -10,6 +10,8 @@ type GameCardProps = {
   isRevealed: boolean;
   role: "civilian" | "impostor";
   secretWord?: string;
+  categoryNames?: string[];
+  showCategories?: boolean;
   onReveal: () => void;
   onHide: () => void;
 };
@@ -19,6 +21,8 @@ export function GameCard({
   isRevealed,
   role,
   secretWord = "",
+  categoryNames = [],
+  showCategories = true,
   onReveal,
   onHide,
 }: GameCardProps) {
@@ -50,6 +54,31 @@ export function GameCard({
               <Eye size={24} />
               {t.revealRole}
             </motion.button>
+            <div className="pt-2">
+              {showCategories && categoryNames.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-slate-500 text-xs font-medium">
+                    {categoryNames.length === 1
+                      ? t.categoryLabel
+                      : t.categoriesLabel}
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    {categoryNames.map((name) => (
+                      <span
+                        key={name}
+                        className="px-2.5 py-1 rounded-lg bg-surface-light border border-white/10 text-slate-300 text-xs font-medium"
+                      >
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-slate-500 text-sm">
+                  {t.categorySecretLabel}
+                </p>
+              )}
+            </div>
           </div>
         </motion.div>
 

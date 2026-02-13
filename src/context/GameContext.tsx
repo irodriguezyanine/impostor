@@ -32,6 +32,7 @@ type GameContextState = {
   phase: GamePhase;
   gameState: GameState | null;
   locale: Locale;
+  categoryVisibility: boolean; // true = mostrar categorías en turnos, false = "Secreta"
 };
 
 type GameContextValue = GameContextState & {
@@ -41,6 +42,7 @@ type GameContextValue = GameContextState & {
   toggleCategory: (category: Category) => void;
   setImpostorCount: (count: 1 | 2 | 3) => void;
   setLocale: (locale: Locale) => void;
+  toggleCategoryVisibility: () => void;
   startGame: () => void;
   nextPlayer: () => void;
   revealRole: (playerName: string) => void;
@@ -86,6 +88,7 @@ const initialState: GameContextState = {
   phase: "setup",
   gameState: null,
   locale: "es",
+  categoryVisibility: true,
 };
 
 type Action =
@@ -95,6 +98,7 @@ type Action =
   | { type: "TOGGLE_CATEGORY"; category: Category }
   | { type: "SET_IMPOSTOR_COUNT"; count: 1 | 2 | 3 }
   | { type: "SET_LOCALE"; locale: Locale }
+  | { type: "TOGGLE_CATEGORY_VISIBILITY" }
   | { type: "START_GAME" }
   | { type: "NEXT_PLAYER" }
   | { type: "REVEAL_ROLE"; playerName: string }
@@ -140,6 +144,9 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
 
     case "SET_LOCALE":
       return { ...state, locale: action.locale };
+
+    case "TOGGLE_CATEGORY_VISIBILITY":
+      return { ...state, categoryVisibility: !state.categoryVisibility };
 
     case "START_GAME": {
       const validPlayers = state.players.filter((p) => p.trim() !== "");
@@ -342,6 +349,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const toggleCategoryVisibility = useCallback(() => {
+    dispatch({ type: "TOGGLE_CATEGORY_VISIBILITY" });
+  }, []);
+
   const startGame = useCallback(() => {
     dispatch({ type: "START_GAME" });
   }, []);
@@ -382,6 +393,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     toggleCategory,
     setImpostorCount,
     setLocale,
+    toggleCategoryVisibility,
     startGame,
     nextPlayer,
     revealRole,
