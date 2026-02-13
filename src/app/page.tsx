@@ -44,9 +44,9 @@ export default function HomePage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(30,41,59,0.6)_0%,transparent_50%)]" aria-hidden />
 
       <div className="flex-1 overflow-y-auto min-h-0 relative z-10">
-        <div className="max-w-lg mx-auto px-5 pt-12 pb-8 safe-top">
+        <div className="max-w-lg mx-auto px-5 pt-20 pb-8 safe-top">
           {/* Header con más espacio */}
-          <header className="mb-10">
+          <header className="mb-10 mt-6">
             <div className="flex items-center justify-between gap-4 mb-2">
               <h1 className="text-3xl md:text-4xl font-black tracking-tight title-gradient drop-shadow-sm">
                 {t.appTitle}
@@ -64,9 +64,6 @@ export default function HomePage() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="space-y-6"
           >
-            {/* ¿Cómo jugar? - Sección expandible */}
-            <HowToPlay />
-
             <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
               <PlayerInputList />
             </div>
@@ -110,6 +107,9 @@ export default function HomePage() {
             <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
               <CategorySelector />
             </div>
+
+            {/* Botón ¿Cómo jugar? debajo de categorías */}
+            <HowToPlay />
           </motion.main>
           <div className="h-28" />
         </div>

@@ -62,7 +62,9 @@ export type Translations = {
   // How to Play
   howToPlayTitle: string;
   howToPlayContent: string;
-}
+  close: string;
+};
+
 
 export const TRANSLATIONS: Record<Locale, Translations> = {
   es: {
@@ -114,6 +116,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**3. Durante el juego** — Se pasa el teléfono de jugador en jugador. Cada uno ve su rol en privado y luego oculta la pantalla. Entre todos conversan, hacen preguntas o dan pistas sobre la palabra sin decirla directamente.\n\n" +
       "**4. Objetivo** — Los civiles intentan descubrir quién es el impostor. El impostor intenta hacerse pasar por uno más sin que lo pillen.\n\n" +
       "**5. Final** — Cuando terminen de discutir, revelan la palabra secreta y quiénes eran los impostores. ¡A reírse con los que cayeron!",
+    close: "Cerrar",
   },
   en: {
     appTitle: "Impostor Chile",
@@ -164,6 +167,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**3. During the game** — Pass the phone from player to player. Each one sees their role privately and then hides the screen. Everyone discusses, asks questions, or gives hints about the word without saying it directly.\n\n" +
       "**4. Goal** — Civilians try to discover who the impostor is. The impostor tries to blend in without getting caught.\n\n" +
       "**5. End** — When you finish discussing, reveal the secret word and who the impostors were. Have fun!",
+    close: "Close",
   },
   pt: {
     appTitle: "Impostor Chile",
@@ -214,6 +218,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**3. Durante o jogo** — Passe o telefone de jogador em jogador. Cada um vê seu papel em privado e depois esconde a tela. Entre todos conversam, fazem perguntas ou dão pistas sobre a palavra sem dizê-la diretamente.\n\n" +
       "**4. Objetivo** — Os civis tentam descobrir quem é o impostor. O impostor tenta se passar por um deles sem ser pego.\n\n" +
       "**5. Final** — Quando terminarem de discutir, revelem a palavra secreta e quem eram os impostores. Divirtam-se!",
+    close: "Fechar",
   },
   it: {
     appTitle: "Impostor Chile",
@@ -264,6 +269,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**3. Durante il gioco** — Passa il telefono da giocatore a giocatore. Ognuno vede il proprio ruolo in privato e poi nasconde lo schermo. Insieme discutono, fanno domande o danno indizi sulla parola senza dirla direttamente.\n\n" +
       "**4. Obiettivo** — I civili cercano di scoprire chi è l'impostore. L'impostore cerca di passare inosservato senza essere scoperto.\n\n" +
       "**5. Fine** — Quando avete finito di discutere, rivelate la parola segreta e chi erano gli impostori. Buon divertimento!",
+    close: "Chiudi",
   },
   fr: {
     appTitle: "Impostor Chile",
@@ -314,5 +320,6 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**3. Pendant le jeu** — Passez le téléphone de joueur en joueur. Chacun voit son rôle en privé puis cache l'écran. Tous ensemble discutent, posent des questions ou donnent des indices sur le mot sans le dire directement.\n\n" +
       "**4. Objectif** — Les civils tentent de découvrir qui est l'imposteur. L'imposteur essaie de se fondre parmi les autres sans se faire prendre.\n\n" +
       "**5. Fin** — Quand vous avez fini de discuter, révélez le mot secret et qui étaient les imposteurs. Amusez-vous bien !",
+    close: "Fermer",
   },
 };
