@@ -114,6 +114,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (De siempre)",
       "alamicos-rfc": "Alamicos R.F.C",
+      "famosos-chilenos": "Famosos Chilenos (Personajes de TV, Historia y Farándula)",
     },
     howToPlayTitle: "¿Cómo jugar?",
     howToPlayContent:
@@ -172,6 +173,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (All-time)",
       "alamicos-rfc": "Alamicos R.F.C",
+      "famosos-chilenos": "Famous Chileans (TV, History & Celebrities)",
     },
     howToPlayTitle: "How to play?",
     howToPlayContent:
@@ -230,6 +232,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (De sempre)",
       "alamicos-rfc": "Alamicos R.F.C",
+      "famosos-chilenos": "Famosos Chilenos (Personagens de TV, História e Celebridades)",
     },
     howToPlayTitle: "Como jogar?",
     howToPlayContent:
@@ -288,6 +291,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (Di sempre)",
       "alamicos-rfc": "Alamicos R.F.C",
+      "famosos-chilenos": "Famosi Cileni (TV, Storia e Celebrità)",
     },
     howToPlayTitle: "Come si gioca?",
     howToPlayContent:
@@ -346,6 +350,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (De toujours)",
       "alamicos-rfc": "Alamicos R.F.C",
+      "famosos-chilenos": "Célébrités Chiliennes (TV, Histoire et People)",
     },
     howToPlayTitle: "Comment jouer ?",
     howToPlayContent:
