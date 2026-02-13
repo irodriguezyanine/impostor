@@ -30,7 +30,7 @@ export function PlayerInputList() {
                 value={player}
                 onChange={(e) => updatePlayer(index, e.target.value)}
                 placeholder={`${t.playerPlaceholder} ${index + 1}`}
-                className="flex-1 px-4 py-3 bg-surface-light rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
+                className="flex-1 px-4 py-3 bg-surface-light rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface border border-white/5 focus:border-primary/30 transition-colors"
                 maxLength={30}
               />
               <button

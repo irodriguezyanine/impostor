@@ -34,7 +34,7 @@ export function GameCard({
       >
         {/* Frente: Pásale a X */}
         <motion.div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-xl border border-white/5 p-8 flex flex-col justify-center"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="text-center space-y-6">
@@ -55,7 +55,7 @@ export function GameCard({
 
         {/* Reverso: Rol revelado */}
         <motion.div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-xl border border-white/5 p-8 flex flex-col justify-center"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",

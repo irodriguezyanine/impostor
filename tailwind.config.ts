@@ -28,6 +28,9 @@ const config: Config = {
       boxShadow: {
         glow: "0 0 20px rgba(163, 230, 53, 0.3)",
         "glow-lg": "0 0 40px rgba(163, 230, 53, 0.2)",
+        card: "0 4px 24px -4px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+        "card-hover": "0 8px 32px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)",
+        modal: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08)",
       },
       animation: {
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",

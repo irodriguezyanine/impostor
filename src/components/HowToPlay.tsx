@@ -46,7 +46,7 @@ export function HowToPlay() {
         onClick={() => setIsOpen(true)}
         aria-haspopup="dialog"
         aria-label={t.howToPlayTitle}
-        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-light border border-white/10 hover:border-white/20 text-slate-300 hover:text-slate-100 transition-all font-medium"
+        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-light border border-white/10 hover:border-white/20 text-slate-300 hover:text-slate-100 transition-all font-medium shadow-sm"
       >
         <BookOpen size={20} />
         {t.howToPlayTitle}
@@ -58,7 +58,7 @@ export function HowToPlay() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
           >
             <div
               onClick={() => setIsOpen(false)}
@@ -74,9 +74,9 @@ export function HowToPlay() {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg max-h-[85vh] flex flex-col bg-surface rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
+              className="relative w-full max-w-lg max-h-[85vh] flex flex-col bg-surface rounded-2xl shadow-modal border border-white/15 overflow-hidden"
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-shrink-0">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/15 flex-shrink-0">
                 <h2
                   id="how-to-play-title"
                   className="text-lg font-semibold text-slate-100 flex items-center gap-2"

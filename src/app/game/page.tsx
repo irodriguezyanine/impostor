@@ -95,7 +95,7 @@ export default function GamePage() {
               exit={{ opacity: 0 }}
               className="space-y-6 pt-8"
             >
-              <div className="bg-surface rounded-2xl shadow-xl border border-white/5 p-8 space-y-6">
+              <div className="bg-surface rounded-2xl shadow-card border border-white/10 p-8 space-y-6">
                 <h2 className="text-xl font-bold text-slate-100 text-center">
                   {t.theSecretWordWas}
                 </h2>
@@ -138,7 +138,7 @@ export default function GamePage() {
               exit={{ opacity: 0 }}
               className="space-y-6 pt-8"
             >
-              <div className="bg-surface rounded-2xl shadow-xl border border-white/5 p-8 text-center">
+              <div className="bg-surface rounded-2xl shadow-card border border-white/10 p-8 text-center">
                 <h2 className="text-lg font-semibold text-slate-300 mb-2">
                   {t.gameInProgress}
                 </h2>
