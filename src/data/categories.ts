@@ -214,6 +214,7 @@ export const CATEGORIES: Category[] = [
     id: "champions-league",
     name: "Champions League",
     icon: "🏆",
+    iconImage: "/logo-champions.png",
     words: [
       "Real Madrid",
       "FC Barcelona",
@@ -759,6 +760,7 @@ export const CATEGORIES: Category[] = [
     id: "real-madrid",
     name: "Real Madrid",
     icon: "⚽",
+    iconImage: "/logo-real-madrid.png",
     words: [
       "Emilio Butragueño",
       "Hugo Sánchez",
@@ -794,6 +796,7 @@ export const CATEGORIES: Category[] = [
     id: "barcelona",
     name: "Barcelona",
     icon: "🔵",
+    iconImage: "/logo-barcelona.png",
     words: [
       "Diego Maradona",
       "Ronald Koeman",
@@ -858,6 +861,7 @@ export const CATEGORIES: Category[] = [
     id: "river-plate",
     name: "River Plate",
     icon: "🔴",
+    iconImage: "/logo-river.png",
     words: [
       "Enzo Francescoli",
       "Ariel Ortega",
@@ -883,6 +887,7 @@ export const CATEGORIES: Category[] = [
     id: "boca-juniors",
     name: "Boca Juniors",
     icon: "💙",
+    iconImage: "/logo-boca.png",
     words: [
       "Diego Maradona",
       "Gabriel Batistuta",
@@ -908,6 +913,7 @@ export const CATEGORIES: Category[] = [
     id: "universidad-catolica",
     name: "Jugadores de Universidad Católica (De siempre)",
     icon: "🛡️",
+    iconImage: "/logo-uc.png",
     words: [
       "Mario Lepe",
       "Alberto Acosta (Beto)",
