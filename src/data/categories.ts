@@ -128,6 +128,7 @@ export const CATEGORIES: Category[] = [
     id: "futbolistas-chilenos",
     name: "Futbolistas Chilenos",
     icon: "🇨🇱",
+    iconImage: "/logo-chile.png",
     words: [
       "Alexis Sánchez",
       "Arturo Vidal",
@@ -830,6 +831,7 @@ export const CATEGORIES: Category[] = [
     id: "manchester-united",
     name: "Manchester United",
     icon: "🔴",
+    iconImage: "/logo-manchester-united.png",
     words: [
       "Bryan Robson",
       "Eric Cantona",
