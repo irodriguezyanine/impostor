@@ -6,9 +6,57 @@ import { LocaleSync } from "@/components/LocaleSync";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
   title: "Impostor Chile - Pasa y Juega",
-  description: "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
+  description:
+    "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
+  keywords: ["impostor", "juego", "fiesta", "chile", "spyfall", "paso y juego"],
+  authors: [{ name: "Impostor Chile" }],
+  creator: "Impostor Chile",
+  metadataBase: new URL(siteUrl),
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/apple-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_CL",
+    url: siteUrl,
+    siteName: "Impostor Chile",
+    title: "Impostor Chile - Pasa y Juega",
+    description:
+      "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 1200,
+        alt: "Impostor Chile - Logo del juego",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Impostor Chile - Pasa y Juega",
+    description:
+      "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
+    images: ["/logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
 };
 
 export const viewport: Viewport = {
