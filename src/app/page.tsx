@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { PlayerInputList } from "@/components/PlayerInputList";
 import { CategorySelector } from "@/components/CategorySelector";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { HowToPlay } from "@/components/HowToPlay";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Minus, Plus } from "lucide-react";
@@ -43,69 +44,78 @@ export default function HomePage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(30,41,59,0.6)_0%,transparent_50%)]" aria-hidden />
 
       <div className="flex-1 overflow-y-auto min-h-0 relative z-10">
-        <div className="max-w-lg mx-auto px-4 pt-6 pb-8 safe-top">
-        <header className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-black tracking-tight title-gradient">
-            {t.appTitle}
-          </h1>
-          <LanguageSelector />
-        </header>
-
-        <motion.main
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="space-y-6"
-        >
-          <div className="bg-surface rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6">
-            <PlayerInputList />
-          </div>
-
-          <div className="bg-surface rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-slate-100 mb-4">
-              {t.impostorCount}
-            </h2>
-            <p className="text-sm text-slate-400 mb-4">
-              {t.impostorCountDescription}
-            </p>
-            <div className="flex items-center justify-between gap-4">
-              <button
-                type="button"
-                onClick={() =>
-                  setImpostorCount(Math.max(1, impostorCount - 1) as 1 | 2 | 3)
-                }
-                disabled={impostorCount <= 1}
-                className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200"
-              >
-                <Minus size={24} />
-              </button>
-              <span className="text-2xl font-bold text-primary min-w-[3rem] text-center">
-                {impostorCount}
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setImpostorCount(
-                    Math.min(maxImpostors, impostorCount + 1) as 1 | 2 | 3
-                  )
-                }
-                disabled={impostorCount >= maxImpostors}
-                className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200"
-              >
-                <Plus size={24} />
-              </button>
+        <div className="max-w-lg mx-auto px-5 pt-12 pb-8 safe-top">
+          {/* Header con más espacio */}
+          <header className="mb-10">
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight title-gradient drop-shadow-sm">
+                {t.appTitle}
+              </h1>
+              <LanguageSelector />
             </div>
-          </div>
+            <p className="text-slate-400 text-sm mt-1">
+              {t.appTagline}
+            </p>
+          </header>
 
-          <div className="bg-surface rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6">
-            <CategorySelector />
-          </div>
-        </motion.main>
-        <div className="h-24" />
+          <motion.main
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="space-y-6"
+          >
+            {/* ¿Cómo jugar? - Sección expandible */}
+            <HowToPlay />
+
+            <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
+              <PlayerInputList />
+            </div>
+
+            <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
+              <h2 className="text-lg font-semibold text-slate-100 mb-4">
+                {t.impostorCount}
+              </h2>
+              <p className="text-sm text-slate-400 mb-4">
+                {t.impostorCountDescription}
+              </p>
+              <div className="flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setImpostorCount(Math.max(1, impostorCount - 1) as 1 | 2 | 3)
+                  }
+                  disabled={impostorCount <= 1}
+                  className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200"
+                >
+                  <Minus size={24} />
+                </button>
+                <span className="text-2xl font-bold text-primary min-w-[3rem] text-center">
+                  {impostorCount}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setImpostorCount(
+                      Math.min(maxImpostors, impostorCount + 1) as 1 | 2 | 3
+                    )
+                  }
+                  disabled={impostorCount >= maxImpostors}
+                  className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200"
+                >
+                  <Plus size={24} />
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
+              <CategorySelector />
+            </div>
+          </motion.main>
+          <div className="h-28" />
         </div>
       </div>
 
-      <div className="flex-shrink-0 p-4 pt-6 bg-background/80 backdrop-blur-sm border-t border-white/10 safe-bottom relative z-10">
+      <div className="flex-shrink-0 p-5 pt-6 bg-background/90 backdrop-blur-md border-t border-white/10 safe-bottom relative z-10">
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={handleStart}
