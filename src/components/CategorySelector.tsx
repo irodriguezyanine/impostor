@@ -71,7 +71,15 @@ export function CategorySelector() {
                   }
                 `}
               >
-                <span className="text-2xl flex-shrink-0">{category.icon}</span>
+                {category.iconImage ? (
+                  <img
+                    src={category.iconImage}
+                    alt=""
+                    className="w-8 h-8 object-contain flex-shrink-0 rounded"
+                  />
+                ) : (
+                  <span className="text-2xl flex-shrink-0">{category.icon}</span>
+                )}
                 <span
                   className={`text-sm font-medium truncate ${
                     isSelected ? "text-gray-900" : "text-slate-200"

@@ -113,6 +113,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "river-plate": "River Plate",
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (De siempre)",
+      "alamicos-rfc": "Alamicos R.F.C",
     },
     howToPlayTitle: "¿Cómo jugar?",
     howToPlayContent:
@@ -170,6 +171,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "river-plate": "River Plate",
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (All-time)",
+      "alamicos-rfc": "Alamicos R.F.C",
     },
     howToPlayTitle: "How to play?",
     howToPlayContent:
@@ -227,6 +229,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "river-plate": "River Plate",
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (De sempre)",
+      "alamicos-rfc": "Alamicos R.F.C",
     },
     howToPlayTitle: "Como jogar?",
     howToPlayContent:
@@ -284,6 +287,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "river-plate": "River Plate",
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (Di sempre)",
+      "alamicos-rfc": "Alamicos R.F.C",
     },
     howToPlayTitle: "Come si gioca?",
     howToPlayContent:
@@ -341,6 +345,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "river-plate": "River Plate",
       "boca-juniors": "Boca Juniors",
       "universidad-catolica": "Universidad Católica (De toujours)",
+      "alamicos-rfc": "Alamicos R.F.C",
     },
     howToPlayTitle: "Comment jouer ?",
     howToPlayContent:
