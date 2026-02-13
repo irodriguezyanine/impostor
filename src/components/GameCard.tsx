@@ -34,13 +34,13 @@ export function GameCard({
       >
         {/* Frente: Pásale a X */}
         <motion.div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-white shadow-sm p-8 flex flex-col justify-center"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-xl border border-white/5 p-8 flex flex-col justify-center"
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="text-center space-y-6">
-            <p className="text-gray-600 text-lg">
+            <p className="text-slate-300 text-lg">
               {t.passTo}{" "}
-              <span className="font-bold text-gray-900">{playerName}</span>
+              <span className="font-bold text-slate-100">{playerName}</span>
             </p>
             <motion.button
               whileTap={{ scale: 0.98 }}
@@ -55,7 +55,7 @@ export function GameCard({
 
         {/* Reverso: Rol revelado */}
         <motion.div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-white shadow-sm p-8 flex flex-col justify-center"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-xl border border-white/5 p-8 flex flex-col justify-center"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
@@ -64,12 +64,12 @@ export function GameCard({
           <div className="text-center space-y-6">
             {role === "civilian" ? (
               <>
-                <p className="text-gray-600 text-base">{t.civilianReveal}</p>
+                <p className="text-slate-300 text-base">{t.civilianReveal}</p>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-2xl font-bold text-gray-900 break-words"
+                  className="text-2xl font-bold text-slate-100 break-words"
                 >
                   {secretWord}
                 </motion.p>
@@ -82,14 +82,14 @@ export function GameCard({
                   transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
                   className="flex justify-center"
                 >
-                  <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
-                    <UserX size={40} className="text-red-600" />
+                  <div className="w-20 h-20 rounded-full bg-red-900/50 flex items-center justify-center">
+                    <UserX size={40} className="text-red-400" />
                   </div>
                 </motion.div>
-                <p className="text-lg font-bold text-red-600">
+                <p className="text-lg font-bold text-red-400">
                   {t.impostorReveal}
                 </p>
-                <p className="text-gray-600">{t.impostorDescription}</p>
+                <p className="text-slate-400">{t.impostorDescription}</p>
               </>
             )}
             <motion.button

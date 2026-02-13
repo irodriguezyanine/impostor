@@ -15,7 +15,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#F2F2F7",
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className={`${inter.className} antialiased bg-background min-h-screen`}>
+      <body className={`${inter.className} antialiased bg-background min-h-screen text-slate-100`}>
         <GameProvider>
           <LocaleSync />
           {children}

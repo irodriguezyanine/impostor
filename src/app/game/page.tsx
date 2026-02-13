@@ -38,7 +38,7 @@ export default function GamePage() {
         <motion.div
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="text-gray-500"
+          className="text-slate-400"
         >
           {t.loading}
         </motion.div>
@@ -65,8 +65,10 @@ export default function GamePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-8 safe-bottom">
-      <div className="max-w-lg mx-auto px-4 pt-6 safe-top">
+    <div className="min-h-screen bg-background pb-8 safe-bottom relative">
+      <div className="absolute inset-0 bg-gradient-mesh" aria-hidden />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(163,230,53,0.06)_0%,transparent_50%)]" aria-hidden />
+      <div className="relative z-10 max-w-lg mx-auto px-4 pt-6 safe-top">
         <AnimatePresence mode="wait">
           {phase === "passing" || phase === "revealing" ? (
             <motion.div
@@ -93,22 +95,22 @@ export default function GamePage() {
               exit={{ opacity: 0 }}
               className="space-y-6 pt-8"
             >
-              <div className="bg-white rounded-3xl shadow-sm p-8 space-y-6">
-                <h2 className="text-xl font-bold text-gray-900 text-center">
+              <div className="bg-surface rounded-2xl shadow-xl border border-white/5 p-8 space-y-6">
+                <h2 className="text-xl font-bold text-slate-100 text-center">
                   {t.theSecretWordWas}
                 </h2>
                 <p className="text-3xl font-bold text-primary text-center break-words">
                   {gameState.secretWord}
                 </p>
-                <div className="border-t border-gray-200 pt-6">
-                  <h2 className="text-lg font-semibold text-red-600 mb-3 text-center">
+                <div className="border-t border-white/10 pt-6">
+                  <h2 className="text-lg font-semibold text-red-400 mb-3 text-center">
                     {t.impostorsWere}
                   </h2>
                   <div className="flex flex-wrap justify-center gap-2">
                     {impostors.map((name) => (
                       <span
                         key={name}
-                        className="px-4 py-2 rounded-xl bg-red-100 text-red-700 font-bold"
+                        className="px-4 py-2 rounded-xl bg-red-900/50 text-red-300 font-bold"
                       >
                         {name}
                       </span>
@@ -136,18 +138,18 @@ export default function GamePage() {
               exit={{ opacity: 0 }}
               className="space-y-6 pt-8"
             >
-              <div className="bg-white rounded-3xl shadow-sm p-8 text-center">
-                <h2 className="text-lg font-semibold text-gray-600 mb-2">
+              <div className="bg-surface rounded-2xl shadow-xl border border-white/5 p-8 text-center">
+                <h2 className="text-lg font-semibold text-slate-300 mb-2">
                   {t.gameInProgress}
                 </h2>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm text-slate-400 mb-4">
                   {t.firstPlayer}
                 </p>
                 <div className="flex items-center justify-center gap-3">
                   <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
                     <Play size={28} className="text-gray-900" />
                   </div>
-                  <span className="text-2xl font-bold text-gray-900">
+                  <span className="text-2xl font-bold text-slate-100">
                     {firstPlayer}
                   </span>
                 </div>
