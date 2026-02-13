@@ -7,12 +7,12 @@ import { LocaleSync } from "@/components/LocaleSync";
 const inter = Inter({ subsets: ["latin"] });
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://impostorchile.vercel.app";
 
 export const metadata: Metadata = {
-  title: "Impostor Chile - Pasa y Juega",
+  title: "Impostor - Juega gratis sin publicidad ni inscripción.",
   description:
-    "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
+    "Pasa y juega el celular con tus amigos, con todo tipo de temas que conoces.",
   keywords: ["impostor", "juego", "fiesta", "chile", "spyfall", "paso y juego"],
   authors: [{ name: "Impostor Chile" }],
   creator: "Impostor Chile",
@@ -27,24 +27,25 @@ export const metadata: Metadata = {
     locale: "es_CL",
     url: siteUrl,
     siteName: "Impostor Chile",
-    title: "Impostor Chile - Pasa y Juega",
+    title: "Impostor - Juega gratis sin publicidad ni inscripción.",
     description:
-      "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
+      "Pasa y juega el celular con tus amigos, con todo tipo de temas que conoces.",
     images: [
       {
-        url: "/logo.png",
-        width: 1200,
-        height: 1200,
+        url: `${siteUrl}/logo.png`,
+        width: 400,
+        height: 400,
         alt: "Impostor Chile - Logo del juego",
+        type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Impostor Chile - Pasa y Juega",
+    title: "Impostor - Juega gratis sin publicidad ni inscripción.",
     description:
-      "Juego de fiesta estilo Spyfall. ¡Pasa el teléfono y descubre quién es el impostor!",
-    images: ["/logo.png"],
+      "Pasa y juega el celular con tus amigos, con todo tipo de temas que conoces.",
+    images: [`${siteUrl}/logo.png`],
   },
   robots: {
     index: true,
