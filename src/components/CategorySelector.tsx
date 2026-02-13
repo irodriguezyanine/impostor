@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 import type { Category } from "@/data/categories";
 import { CATEGORIES } from "@/data/categories";
 import { useGame } from "@/context/GameContext";
@@ -15,7 +16,12 @@ function getCategoryDisplayName(
 }
 
 export function CategorySelector() {
-  const { selectedCategories, toggleCategory } = useGame();
+  const {
+    selectedCategories,
+    toggleCategory,
+    categoryVisibility,
+    toggleCategoryVisibility,
+  } = useGame();
   const t = useTranslations();
   const [tooltipCategory, setTooltipCategory] = useState<string | null>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -44,9 +50,28 @@ export function CategorySelector() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-slate-100">
-        {t.categorySelection}
-      </h2>
+      <div className="flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-slate-100 flex-1">
+          {t.categorySelection}
+        </h2>
+        <motion.button
+          type="button"
+          onClick={toggleCategoryVisibility}
+          whileTap={{ scale: 0.95 }}
+          title={categoryVisibility ? t.hideCategory : t.showCategory}
+          className={`p-2 rounded-lg transition-colors ${
+            categoryVisibility
+              ? "text-primary hover:bg-primary/20"
+              : "text-slate-500 hover:bg-slate-500/20 hover:text-slate-400"
+          }`}
+        >
+          {categoryVisibility ? (
+            <Eye size={22} strokeWidth={2} />
+          ) : (
+            <EyeOff size={22} />
+          )}
+        </motion.button>
+      </div>
       <div className="grid grid-cols-2 gap-3">
         {CATEGORIES.map((category) => {
           const isSelected = selectedCategories.some((c) => c.id === category.id);

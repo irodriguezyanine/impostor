@@ -32,6 +32,12 @@ export type Translations = {
   impostorCount: string;
   impostorCountDescription: string;
   categorySelection: string;
+  showCategory: string;
+  hideCategory: string;
+  categoryLabel: string;
+  categoriesLabel: string;
+  categorySecret: string;
+  categorySecretLabel: string;
 
   // Game Flow - Pass and Play
   passTo: string;
@@ -84,6 +90,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Número de impostores",
     impostorCountDescription: "Debe haber al menos 2 jugadores más que impostores",
     categorySelection: "Selecciona una o más categorías",
+    showCategory: "Ver categoría",
+    hideCategory: "No ver categoría",
+    categoryLabel: "Categoría",
+    categoriesLabel: "Categorías",
+    categorySecret: "Secreta",
+    categorySecretLabel: "Categoría/s: Secreta",
     passTo: "Pásale el teléfono a",
     revealRole: "VER MI ROL",
     passToNextPlayer: "Pasar al siguiente jugador",
@@ -125,6 +137,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "universidad-catolica": "Universidad Católica (De siempre)",
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famosos Chilenos (Personajes de TV, Historia y Farándula)",
+      peliculas: "Películas Famosas (Mundiales y Chilenas)",
     },
     howToPlayTitle: "¿Cómo jugar?",
     howToPlayContent:
@@ -148,6 +161,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Impostor count",
     impostorCountDescription: "Must be at least 2 more players than impostors",
     categorySelection: "Select one or more categories",
+    showCategory: "Show category",
+    hideCategory: "Hide category",
+    categoryLabel: "Category",
+    categoriesLabel: "Categories",
+    categorySecret: "Secret",
+    categorySecretLabel: "Category/ies: Secret",
     passTo: "Pass the phone to",
     revealRole: "REVEAL MY ROLE",
     passToNextPlayer: "Pass to next player",
@@ -189,6 +208,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "universidad-catolica": "Universidad Católica (All-time)",
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famous Chileans (TV, History & Celebrities)",
+      peliculas: "Famous Movies (World & Chilean)",
     },
     howToPlayTitle: "How to play?",
     howToPlayContent:
@@ -212,6 +232,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Número de impostores",
     impostorCountDescription: "Deve haver pelo menos 2 jogadores a mais que impostores",
     categorySelection: "Selecione uma ou mais categorias",
+    showCategory: "Ver categoria",
+    hideCategory: "Não ver categoria",
+    categoryLabel: "Categoria",
+    categoriesLabel: "Categorias",
+    categorySecret: "Secreta",
+    categorySecretLabel: "Categoria/s: Secreta",
     passTo: "Passe o telefone para",
     revealRole: "REVELAR MEU PAPEL",
     passToNextPlayer: "Passar para o próximo jogador",
@@ -253,6 +279,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "universidad-catolica": "Universidad Católica (De sempre)",
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famosos Chilenos (Personagens de TV, História e Celebridades)",
+      peliculas: "Filmes Famosos (Mundiais e Chilenos)",
     },
     howToPlayTitle: "Como jogar?",
     howToPlayContent:
@@ -276,6 +303,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Numero di impostori",
     impostorCountDescription: "Devono esserci almeno 2 giocatori in più degli impostori",
     categorySelection: "Seleziona una o più categorie",
+    showCategory: "Mostra categoria",
+    hideCategory: "Nascondi categoria",
+    categoryLabel: "Categoria",
+    categoriesLabel: "Categorie",
+    categorySecret: "Segreta",
+    categorySecretLabel: "Categoria/e: Segreta",
     passTo: "Passa il telefono a",
     revealRole: "RIVELA IL MIO RUOLO",
     passToNextPlayer: "Passa al prossimo giocatore",
@@ -317,6 +350,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "universidad-catolica": "Universidad Católica (Di sempre)",
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famosi Cileni (TV, Storia e Celebrità)",
+      peliculas: "Film Famosi (Mondiali e Cileni)",
     },
     howToPlayTitle: "Come si gioca?",
     howToPlayContent:
@@ -340,6 +374,12 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Nombre d'imposteurs",
     impostorCountDescription: "Il doit y avoir au moins 2 joueurs de plus que d'imposteurs",
     categorySelection: "Sélectionnez une ou plusieurs catégories",
+    showCategory: "Voir la catégorie",
+    hideCategory: "Masquer la catégorie",
+    categoryLabel: "Catégorie",
+    categoriesLabel: "Catégories",
+    categorySecret: "Secrète",
+    categorySecretLabel: "Catégorie/s: Secrète",
     passTo: "Passe le téléphone à",
     revealRole: "RÉVÉLER MON RÔLE",
     passToNextPlayer: "Passer au joueur suivant",
@@ -381,6 +421,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "universidad-catolica": "Universidad Católica (De toujours)",
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Célébrités Chiliennes (TV, Histoire et People)",
+      peliculas: "Films Célèbres (Mondiaux et Chiliens)",
     },
     howToPlayTitle: "Comment jouer ?",
     howToPlayContent:
