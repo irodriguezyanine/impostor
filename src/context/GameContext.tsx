@@ -230,9 +230,11 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       return { ...state, phase: "ended" };
 
     case "FINISH_GAME":
+      // Volver a setup manteniendo jugadores, categorías e impostores para jugar de nuevo rápido
       return {
-        ...initialState,
-        locale: state.locale,
+        ...state,
+        phase: "setup",
+        gameState: null,
       };
 
     default:
