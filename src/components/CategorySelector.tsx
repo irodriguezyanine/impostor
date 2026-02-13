@@ -66,8 +66,8 @@ export function CategorySelector() {
                   border
                   ${
                     isSelected
-                      ? "bg-primary border-primary-dark shadow-glow text-gray-900"
-                      : "bg-surface-light border-white/10 hover:border-white/20 text-slate-200"
+                      ? "bg-primary border-primary-dark shadow-glow text-gray-900 ring-2 ring-primary/30"
+                      : "bg-surface-light border-white/10 hover:border-white/20 hover:shadow-sm text-slate-200"
                   }
                 `}
               >
@@ -82,7 +82,7 @@ export function CategorySelector() {
               </motion.button>
               <div
                 role="tooltip"
-                className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg pointer-events-none whitespace-nowrap z-50 shadow-xl border border-white/10 transition-opacity duration-200 ${
+                className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg pointer-events-none whitespace-nowrap z-50 shadow-card border border-white/10 transition-opacity duration-200 ${
                   showTooltipTap
                     ? "opacity-100 visible"
                     : "opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible"

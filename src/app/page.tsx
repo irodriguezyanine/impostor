@@ -43,7 +43,7 @@ export default function HomePage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(163,230,53,0.08)_0%,transparent_50%)]" aria-hidden />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(30,41,59,0.6)_0%,transparent_50%)]" aria-hidden />
 
-      <div className="flex-1 overflow-y-auto min-h-0 relative z-10">
+      <div className="flex-1 overflow-y-auto min-h-0 relative z-0">
         <div className="max-w-lg mx-auto px-5 pt-20 pb-8 safe-top">
           {/* Header con más espacio */}
           <header className="mb-10 mt-6">
@@ -64,11 +64,11 @@ export default function HomePage() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="space-y-6"
           >
-            <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
+            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm transition-shadow duration-200 hover:shadow-card-hover">
               <PlayerInputList />
             </div>
 
-            <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
+            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm transition-shadow duration-200 hover:shadow-card-hover">
               <h2 className="text-lg font-semibold text-slate-100 mb-4">
                 {t.impostorCount}
               </h2>
@@ -104,7 +104,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="bg-surface/95 rounded-2xl shadow-xl shadow-black/20 border border-white/5 p-6 backdrop-blur-sm">
+            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm transition-shadow duration-200 hover:shadow-card-hover">
               <CategorySelector />
             </div>
 
@@ -115,23 +115,25 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="flex-shrink-0 p-5 pt-6 bg-background/90 backdrop-blur-md border-t border-white/10 safe-bottom relative z-10">
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={handleStart}
-          disabled={!canStart}
-          className={`
-            w-full max-w-lg mx-auto block py-4 rounded-2xl font-bold text-lg
-            transition-all duration-200
-            ${
-              canStart
-                ? "bg-primary text-gray-900 shadow-glow hover:shadow-glow-lg"
-                : "bg-surface-light text-slate-500 cursor-not-allowed"
-            }
-          `}
-        >
-          {t.startGame}
-        </motion.button>
+      <div className="flex-shrink-0 py-8 px-5 flex items-center justify-center bg-background/90 backdrop-blur-md border-t border-white/15 shadow-[0_-4px_24px_rgba(0,0,0,0.15)] safe-bottom relative z-10 min-h-[120px]">
+        <div className="w-full max-w-lg flex justify-center">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={handleStart}
+            disabled={!canStart}
+            className={`
+              w-full py-4 rounded-2xl font-bold text-lg
+              transition-all duration-200
+              ${
+                canStart
+                  ? "bg-primary text-gray-900 shadow-glow hover:shadow-glow-lg"
+                  : "bg-surface-light text-slate-500 cursor-not-allowed"
+              }
+            `}
+          >
+            {t.startGame}
+          </motion.button>
+        </div>
       </div>
     </div>
   );
