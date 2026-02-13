@@ -54,13 +54,15 @@ export function HowToPlay() {
 
       <AnimatePresence>
         {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          >
+            <div
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               aria-hidden="true"
             />
             <motion.div
@@ -71,7 +73,8 @@ export function HowToPlay() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:w-full md:max-h-[85vh] z-50 flex flex-col bg-surface rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg max-h-[85vh] flex flex-col bg-surface rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
             >
               <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-shrink-0">
                 <h2
@@ -96,7 +99,7 @@ export function HowToPlay() {
                 </div>
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
