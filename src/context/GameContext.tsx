@@ -47,6 +47,8 @@ type GameContextValue = GameContextState & {
   hideRole: () => void;
   revealAndFinish: () => void;
   finishGame: () => void;
+  restartCardView: () => void;
+  restartGame: () => void;
 };
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -98,7 +100,9 @@ type Action =
   | { type: "REVEAL_ROLE"; playerName: string }
   | { type: "HIDE_ROLE" }
   | { type: "REVEAL_AND_FINISH" }
-  | { type: "FINISH_GAME" };
+  | { type: "FINISH_GAME" }
+  | { type: "RESTART_CARD_VIEW" }
+  | { type: "RESTART_GAME" };
 
 function gameReducer(state: GameContextState, action: Action): GameContextState {
   switch (action.type) {
@@ -237,6 +241,61 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         gameState: null,
       };
 
+    case "RESTART_CARD_VIEW": {
+      if (!state.gameState) return state;
+      return {
+        ...state,
+        phase: "passing",
+        gameState: {
+          ...state.gameState,
+          currentPlayerIndex: 0,
+          revealedPlayers: new Set(),
+        },
+      };
+    }
+
+    case "RESTART_GAME": {
+      const validPlayers = state.players.filter((p) => p.trim() !== "");
+      if (validPlayers.length < 3 || state.selectedCategories.length === 0)
+        return state;
+      if (validPlayers.length - state.impostorCount < 2) return state;
+
+      const category = getRandomElement(state.selectedCategories);
+      const cat = CATEGORIES.find((c) => c.id === category.id) ?? category;
+      const words = cat.words;
+      if (words.length === 0) return state;
+
+      const secretWord = getRandomElement(words);
+      const shuffledOrder = shuffleArray(validPlayers);
+
+      const impostorIndices = new Set<number>();
+      while (impostorIndices.size < state.impostorCount) {
+        impostorIndices.add(
+          Math.floor(Math.random() * shuffledOrder.length)
+        );
+      }
+
+      const playerRoles: Record<string, PlayerRole> = {};
+      shuffledOrder.forEach((name, idx) => {
+        playerRoles[name] = impostorIndices.has(idx) ? "impostor" : "civilian";
+      });
+
+      const firstPlayer = getRandomElement(shuffledOrder);
+
+      return {
+        ...state,
+        phase: "passing",
+        gameState: {
+          secretWord,
+          playerRoles,
+          shuffledOrder,
+          currentPlayerIndex: 0,
+          firstPlayer,
+          revealedPlayers: new Set(),
+        },
+      };
+    }
+
     default:
       return state;
   }
@@ -307,6 +366,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "FINISH_GAME" });
   }, []);
 
+  const restartCardView = useCallback(() => {
+    dispatch({ type: "RESTART_CARD_VIEW" });
+  }, []);
+
+  const restartGame = useCallback(() => {
+    dispatch({ type: "RESTART_GAME" });
+  }, []);
+
   const value: GameContextValue = {
     ...state,
     addPlayer,
@@ -321,6 +388,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     hideRole,
     revealAndFinish,
     finishGame,
+    restartCardView,
+    restartGame,
   };
 
   return (

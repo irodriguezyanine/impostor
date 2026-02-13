@@ -15,6 +15,8 @@ export default function GamePage() {
     gameState,
     finishGame,
     revealAndFinish,
+    restartCardView,
+    restartGame,
     revealRole,
     hideRole,
   } = useGame();
@@ -76,8 +78,18 @@ export default function GamePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="pt-8"
+              className="pt-8 relative"
             >
+              <button
+                type="button"
+                onClick={() => {
+                  finishGame();
+                  router.push("/");
+                }}
+                className="absolute top-0 right-0 text-slate-500 hover:text-slate-400 text-sm font-medium transition-colors py-1 px-2 -mr-1"
+              >
+                {t.finishShort}
+              </button>
               <GameCard
                 playerName={currentPlayer}
                 isRevealed={isRevealed}
@@ -155,13 +167,39 @@ export default function GamePage() {
                 </div>
               </div>
 
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={revealAndFinish}
-                className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 text-center"
-              >
-                {t.finishAndReveal}
-              </motion.button>
+              <div className="space-y-3">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={revealAndFinish}
+                  className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 text-center"
+                >
+                  {t.revealWordAndImpostor}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={restartCardView}
+                  className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold flex items-center justify-center gap-2 text-center border border-white/10"
+                >
+                  {t.repeatCardView}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={restartGame}
+                  className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold flex items-center justify-center gap-2 text-center border border-white/10"
+                >
+                  {t.repeatGame}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    finishGame();
+                    router.push("/");
+                  }}
+                  className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold flex items-center justify-center gap-2 text-center border border-white/10"
+                >
+                  {t.finishGameGoHome}
+                </motion.button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
