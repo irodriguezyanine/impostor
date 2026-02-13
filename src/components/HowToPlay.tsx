@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { BookOpen, ChevronDown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BookOpen, X } from "lucide-react";
 import { useTranslations } from "@/hooks/useTranslations";
 
 function formatContent(text: string) {
@@ -28,48 +28,77 @@ export function HowToPlay() {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   return (
-    <div className="bg-surface rounded-2xl shadow-xl shadow-black/20 border border-white/5 overflow-hidden">
+    <>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        aria-controls="how-to-play-content"
-        id="how-to-play-trigger"
-        className="w-full flex items-center justify-between gap-3 px-6 py-4 text-left hover:bg-white/[0.02] transition-colors"
+        onClick={() => setIsOpen(true)}
+        aria-haspopup="dialog"
+        aria-label={t.howToPlayTitle}
+        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-light border border-white/10 hover:border-white/20 text-slate-300 hover:text-slate-100 transition-all font-medium"
       >
-        <span className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/20 text-primary">
-            <BookOpen size={20} />
-          </div>
-          <h2 className="text-lg font-semibold text-slate-100">
-            {t.howToPlayTitle}
-          </h2>
-        </span>
-        <motion.span
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="text-slate-400"
-        >
-          <ChevronDown size={24} />
-        </motion.span>
+        <BookOpen size={20} />
+        {t.howToPlayTitle}
       </button>
-      <motion.div
-        id="how-to-play-content"
-        role="region"
-        aria-labelledby="how-to-play-trigger"
-        aria-hidden={!isOpen}
-        initial={false}
-        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="overflow-hidden"
-      >
-        <div className="px-6 pb-6 pt-2 border-t border-white/5">
-          <div className="text-slate-400 text-[15px] leading-relaxed">
-            {formatContent(t.howToPlayContent)}
-          </div>
-        </div>
-      </motion.div>
-    </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+              aria-hidden="true"
+            />
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="how-to-play-title"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:w-full md:max-h-[85vh] z-50 flex flex-col bg-surface rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-shrink-0">
+                <h2
+                  id="how-to-play-title"
+                  className="text-lg font-semibold text-slate-100 flex items-center gap-2"
+                >
+                  <BookOpen size={22} className="text-primary" />
+                  {t.howToPlayTitle}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  aria-label={t.close}
+                  className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-slate-100 transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-6 py-5">
+                <div className="text-slate-400 text-[15px] leading-relaxed">
+                  {formatContent(t.howToPlayContent)}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
