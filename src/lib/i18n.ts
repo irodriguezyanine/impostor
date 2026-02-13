@@ -52,6 +52,11 @@ export type Translations = {
   gameInProgress: string;
   finishGame: string;
   finishAndReveal: string;
+  revealWordAndImpostor: string;
+  repeatCardView: string;
+  repeatGame: string;
+  finishGameGoHome: string;
+  finishShort: string;
   backToHome: string;
   impostorsWere: string;
   theSecretWordWas: string;
@@ -93,6 +98,11 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     gameInProgress: "Partida en curso",
     finishGame: "FINALIZAR PARTIDA",
     finishAndReveal: "Finalizar partida, revelar palabra e impostor",
+    revealWordAndImpostor: "Revelar palabra e impostor",
+    repeatCardView: "Repetir la vista de cartas",
+    repeatGame: "Repetir partida",
+    finishGameGoHome: "Finalizar partida",
+    finishShort: "Finalizar",
     backToHome: "VOLVER AL INICIO",
     impostorsWere: "Los impostores eran:",
     theSecretWordWas: "La palabra secreta era:",
@@ -152,6 +162,11 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     gameInProgress: "Game in progress",
     finishGame: "FINISH GAME",
     finishAndReveal: "Finish game, reveal word and impostor",
+    revealWordAndImpostor: "Reveal word and impostor",
+    repeatCardView: "Repeat card view",
+    repeatGame: "Repeat game",
+    finishGameGoHome: "Finish game",
+    finishShort: "Finish",
     backToHome: "BACK TO HOME",
     impostorsWere: "The impostors were:",
     theSecretWordWas: "The secret word was:",
@@ -211,6 +226,11 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     gameInProgress: "Partida em andamento",
     finishGame: "FINALIZAR PARTIDA",
     finishAndReveal: "Finalizar partida, revelar palavra e impostor",
+    revealWordAndImpostor: "Revelar palavra e impostor",
+    repeatCardView: "Repetir a vista de cartas",
+    repeatGame: "Repetir partida",
+    finishGameGoHome: "Finalizar partida",
+    finishShort: "Finalizar",
     backToHome: "VOLTAR AO INÍCIO",
     impostorsWere: "Os impostores eram:",
     theSecretWordWas: "A palavra secreta era:",
@@ -270,6 +290,11 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     gameInProgress: "Partita in corso",
     finishGame: "TERMINA PARTITA",
     finishAndReveal: "Termina partita, rivela parola e impostore",
+    revealWordAndImpostor: "Rivela parola e impostore",
+    repeatCardView: "Ripeti vista carte",
+    repeatGame: "Ripeti partita",
+    finishGameGoHome: "Termina partita",
+    finishShort: "Termina",
     backToHome: "TORNA ALL'INIZIO",
     impostorsWere: "Gli impostori erano:",
     theSecretWordWas: "La parola segreta era:",
@@ -329,6 +354,11 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     gameInProgress: "Partie en cours",
     finishGame: "TERMINER LA PARTIE",
     finishAndReveal: "Terminer la partie, révéler le mot et l'imposteur",
+    revealWordAndImpostor: "Révéler le mot et l'imposteur",
+    repeatCardView: "Répéter la vue des cartes",
+    repeatGame: "Rejouer la partie",
+    finishGameGoHome: "Terminer la partie",
+    finishShort: "Terminer",
     backToHome: "RETOUR À L'ACCUEIL",
     impostorsWere: "Les imposteurs étaient :",
     theSecretWordWas: "Le mot secret était :",
