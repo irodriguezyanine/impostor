@@ -19,11 +19,11 @@ export function CategorySelector() {
   const t = useTranslations();
 
   return (
-    <div className="space-y-3">
-      <h2 className="text-lg font-semibold text-gray-800">
+    <div className="space-y-4">
+      <h2 className="text-lg font-semibold text-slate-100">
         {t.categorySelection}
       </h2>
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {CATEGORIES.map((category) => {
           const isSelected = selectedCategories.some((c) => c.id === category.id);
           const displayName = getCategoryDisplayName(category, t);
@@ -33,21 +33,22 @@ export function CategorySelector() {
               key={category.id}
               type="button"
               onClick={() => toggleCategory(category)}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.98 }}
               className={`
-                flex-shrink-0 flex flex-col items-center gap-2 p-4 min-w-[120px] max-w-[160px] rounded-2xl
-                border-2 transition-all duration-200
+                flex items-center gap-3 px-4 py-3 rounded-xl
+                transition-all duration-200 text-left
+                border
                 ${
                   isSelected
-                    ? "bg-primary border-4 border-lime-600 shadow-md"
-                    : "bg-white border-2 border-gray-200 hover:border-gray-300 shadow-sm"
+                    ? "bg-primary border-primary-dark shadow-glow text-gray-900"
+                    : "bg-surface-light border-white/10 hover:border-white/20 text-slate-200"
                 }
               `}
             >
-              <span className="text-3xl">{category.icon}</span>
+              <span className="text-2xl flex-shrink-0">{category.icon}</span>
               <span
-                className={`text-sm font-medium text-center ${
-                  isSelected ? "text-gray-900" : "text-gray-700"
+                className={`text-sm font-medium truncate ${
+                  isSelected ? "text-gray-900" : "text-slate-200"
                 }`}
               >
                 {displayName}

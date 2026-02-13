@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Título con efecto de gradiente y brillo */
+.title-gradient {
+  background: linear-gradient(135deg, #a3e635 0%, #c6f04a 30%, #84cc16 70%, #a3e635 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(163, 230, 53, 0.3);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
 /* Ocultar scrollbar en horizontal para categorías */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

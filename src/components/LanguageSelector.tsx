@@ -15,7 +15,7 @@ export function LanguageSelector() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-light text-slate-200 hover:bg-slate-500/50 transition-colors border border-white/5"
       >
         <Globe size={18} />
         <span className="text-sm font-medium">{LOCALE_NAMES[locale]}</span>
@@ -32,7 +32,7 @@ export function LanguageSelector() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="absolute right-0 mt-2 py-2 w-40 bg-white rounded-2xl shadow-lg border border-gray-100 z-20"
+              className="absolute right-0 mt-2 py-2 w-40 bg-surface rounded-xl shadow-xl border border-white/10 z-20"
             >
               {LOCALES.map((loc) => (
                 <li key={loc}>
@@ -42,8 +42,8 @@ export function LanguageSelector() {
                       setLocale(loc);
                       setIsOpen(false);
                     }}
-                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 rounded-xl mx-1 ${
-                      locale === loc ? "font-semibold text-primary" : ""
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-surface-light rounded-lg mx-1 transition-colors ${
+                      locale === loc ? "font-semibold text-primary" : "text-slate-200"
                     }`}
                   >
                     {LOCALE_NAMES[loc]}

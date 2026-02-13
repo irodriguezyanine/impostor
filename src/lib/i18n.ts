@@ -97,6 +97,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       lugares: "Lugares",
       comidas: "Comidas",
       objetos: "Objetos",
+      autos: "Autos",
+      animales: "Animales",
     },
   },
   en: {
@@ -136,6 +138,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       lugares: "Places",
       comidas: "Foods",
       objetos: "Objects",
+      autos: "Cars",
+      animales: "Animals",
     },
   },
   pt: {
@@ -175,6 +179,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       lugares: "Lugares",
       comidas: "Comidas",
       objetos: "Objetos",
+      autos: "Carros",
+      animales: "Animais",
     },
   },
   it: {
@@ -214,6 +220,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       lugares: "Luoghi",
       comidas: "Cibi",
       objetos: "Oggetti",
+      autos: "Auto",
+      animales: "Animali",
     },
   },
   fr: {
@@ -253,6 +261,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       lugares: "Lieux",
       comidas: "Aliments",
       objetos: "Objets",
+      autos: "Voitures",
+      animales: "Animaux",
     },
   },
 };
