@@ -60,6 +60,7 @@ export type Translations = {
   finishAndReveal: string;
   revealWordAndImpostor: string;
   repeatCardView: string;
+  whoForgotCard: string;
   repeatGame: string;
   finishGameGoHome: string;
   finishShort: string;
@@ -112,6 +113,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     finishAndReveal: "Finalizar partida, revelar palabra e impostor",
     revealWordAndImpostor: "Revelar palabra e impostor",
     repeatCardView: "Repetir la vista de cartas",
+    whoForgotCard: "¿Qué jugador olvidó su carta?",
     repeatGame: "Repetir partida",
     finishGameGoHome: "Finalizar partida",
     finishShort: "Finalizar",
@@ -183,6 +185,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     finishAndReveal: "Finish game, reveal word and impostor",
     revealWordAndImpostor: "Reveal word and impostor",
     repeatCardView: "Repeat card view",
+    whoForgotCard: "Which player forgot their card?",
     repeatGame: "Repeat game",
     finishGameGoHome: "Finish game",
     finishShort: "Finish",
@@ -254,6 +257,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     finishAndReveal: "Finalizar partida, revelar palavra e impostor",
     revealWordAndImpostor: "Revelar palavra e impostor",
     repeatCardView: "Repetir a vista de cartas",
+    whoForgotCard: "Qual jogador esqueceu sua carta?",
     repeatGame: "Repetir partida",
     finishGameGoHome: "Finalizar partida",
     finishShort: "Finalizar",
@@ -325,6 +329,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     finishAndReveal: "Termina partita, rivela parola e impostore",
     revealWordAndImpostor: "Rivela parola e impostore",
     repeatCardView: "Ripeti vista carte",
+    whoForgotCard: "Quale giocatore ha dimenticato la sua carta?",
     repeatGame: "Ripeti partita",
     finishGameGoHome: "Termina partita",
     finishShort: "Termina",
@@ -396,6 +401,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     finishAndReveal: "Terminer la partie, révéler le mot et l'imposteur",
     revealWordAndImpostor: "Révéler le mot et l'imposteur",
     repeatCardView: "Répéter la vue des cartes",
+    whoForgotCard: "Quel joueur a oublié sa carte ?",
     repeatGame: "Rejouer la partie",
     finishGameGoHome: "Terminer la partie",
     finishShort: "Terminer",
