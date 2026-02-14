@@ -23,6 +23,7 @@ export type GameState = {
   currentPlayerIndex: number;
   firstPlayer: string;
   revealedPlayers: Set<string>;
+  flippingToNextIndex: number | null; // Durante el flip, retrasamos el avance para no revelar el rol del siguiente
 };
 
 type GameContextState = {
@@ -47,6 +48,7 @@ type GameContextValue = GameContextState & {
   nextPlayer: () => void;
   revealRole: (playerName: string) => void;
   hideRole: () => void;
+  completeFlipToNext: () => void;
   revealAndFinish: () => void;
   finishGame: () => void;
   restartCardView: () => void;
@@ -106,7 +108,8 @@ type Action =
   | { type: "REVEAL_AND_FINISH" }
   | { type: "FINISH_GAME" }
   | { type: "RESTART_CARD_VIEW" }
-  | { type: "RESTART_GAME" };
+  | { type: "RESTART_GAME" }
+  | { type: "COMPLETE_FLIP_TO_NEXT" };
 
 function gameReducer(state: GameContextState, action: Action): GameContextState {
   switch (action.type) {
@@ -185,6 +188,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
           currentPlayerIndex: 0,
           firstPlayer,
           revealedPlayers: new Set(),
+          flippingToNextIndex: null,
         },
       };
     }
@@ -227,12 +231,27 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       if (nextIndex >= shuffledOrder.length) {
         return { ...state, phase: "playing" };
       }
+      // No avanzar aún: primero flip, luego COMPLETE_FLIP_TO_NEXT evita que se vea el rol del siguiente
       return {
         ...state,
         phase: "passing",
         gameState: {
           ...state.gameState,
+          flippingToNextIndex: nextIndex,
+        },
+      };
+    }
+
+    case "COMPLETE_FLIP_TO_NEXT": {
+      if (!state.gameState || state.gameState.flippingToNextIndex === null)
+        return state;
+      const nextIndex = state.gameState.flippingToNextIndex;
+      return {
+        ...state,
+        gameState: {
+          ...state.gameState,
           currentPlayerIndex: nextIndex,
+          flippingToNextIndex: null,
         },
       };
     }
@@ -257,6 +276,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
           ...state.gameState,
           currentPlayerIndex: 0,
           revealedPlayers: new Set(),
+          flippingToNextIndex: null,
         },
       };
     }
@@ -299,6 +319,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
           currentPlayerIndex: 0,
           firstPlayer,
           revealedPlayers: new Set(),
+          flippingToNextIndex: null,
         },
       };
     }
@@ -369,6 +390,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "HIDE_ROLE" });
   }, []);
 
+  const completeFlipToNext = useCallback(() => {
+    dispatch({ type: "COMPLETE_FLIP_TO_NEXT" });
+  }, []);
+
   const revealAndFinish = useCallback(() => {
     dispatch({ type: "REVEAL_AND_FINISH" });
   }, []);
@@ -398,6 +423,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     nextPlayer,
     revealRole,
     hideRole,
+    completeFlipToNext,
     revealAndFinish,
     finishGame,
     restartCardView,

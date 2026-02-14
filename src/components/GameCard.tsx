@@ -14,6 +14,7 @@ type GameCardProps = {
   showCategories?: boolean;
   onReveal: () => void;
   onHide: () => void;
+  onFlipComplete?: () => void;
 };
 
 export function GameCard({
@@ -25,6 +26,7 @@ export function GameCard({
   showCategories = true,
   onReveal,
   onHide,
+  onFlipComplete,
 }: GameCardProps) {
   const t = useTranslations();
 
@@ -35,6 +37,9 @@ export function GameCard({
         initial={false}
         animate={{ rotateY: isRevealed ? 180 : 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 25 }}
+        onAnimationComplete={() => {
+          if (!isRevealed && onFlipComplete) onFlipComplete();
+        }}
       >
         {/* Frente: Pásale a X */}
         <motion.div

@@ -21,6 +21,7 @@ export default function GamePage() {
     restartGame,
     revealRole,
     hideRole,
+    completeFlipToNext,
   } = useGame();
   const t = useTranslations();
 
@@ -50,15 +51,28 @@ export default function GamePage() {
     );
   }
 
-  const { shuffledOrder, currentPlayerIndex, firstPlayer, revealedPlayers } =
-    gameState;
+  const {
+    shuffledOrder,
+    currentPlayerIndex,
+    firstPlayer,
+    revealedPlayers,
+    flippingToNextIndex,
+  } = gameState;
   const currentPlayer = shuffledOrder[currentPlayerIndex];
+  const nextPlayer =
+    flippingToNextIndex !== null
+      ? shuffledOrder[flippingToNextIndex]
+      : currentPlayer;
   const currentRole = currentPlayer
     ? gameState.playerRoles[currentPlayer]
     : "civilian";
-  const isRevealed = currentPlayer
-    ? revealedPlayers.has(currentPlayer)
-    : false;
+  // Durante el flip mostramos el frente (para no revelar el rol del siguiente) pero el reverso sigue mostrando el jugador actual
+  const isRevealed =
+    flippingToNextIndex !== null
+      ? false
+      : currentPlayer
+        ? revealedPlayers.has(currentPlayer)
+        : false;
 
   const handleReveal = () => {
     if (currentPlayer) revealRole(currentPlayer);
@@ -93,7 +107,7 @@ export default function GamePage() {
                 {t.finishShort}
               </button>
               <GameCard
-                playerName={currentPlayer}
+                playerName={nextPlayer}
                 isRevealed={isRevealed}
                 role={currentRole}
                 secretWord={gameState.secretWord}
@@ -103,6 +117,9 @@ export default function GamePage() {
                 showCategories={categoryVisibility}
                 onReveal={handleReveal}
                 onHide={handleHide}
+                onFlipComplete={
+                  flippingToNextIndex !== null ? completeFlipToNext : undefined
+                }
               />
             </motion.div>
           ) : phase === "ended" ? (
