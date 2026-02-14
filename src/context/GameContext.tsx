@@ -34,7 +34,8 @@ type GameContextState = {
   gameState: GameState | null;
   locale: Locale;
   categoryVisibility: boolean;
-  repeatCardForPlayer: string | null; // Jugador que debe ver su carta de nuevo (modal "Repetir vista")
+  hintsEnabled: boolean; // Si está activo, los impostores ven la categoría como pista
+  repeatCardForPlayer: string | null;
 };
 
 type GameContextValue = GameContextState & {
@@ -45,6 +46,7 @@ type GameContextValue = GameContextState & {
   setImpostorCount: (count: 1 | 2 | 3) => void;
   setLocale: (locale: Locale) => void;
   toggleCategoryVisibility: () => void;
+  toggleHints: () => void;
   startGame: () => void;
   nextPlayer: () => void;
   revealRole: (playerName: string) => void;
@@ -94,6 +96,7 @@ const initialState: GameContextState = {
   gameState: null,
   locale: "es",
   categoryVisibility: true,
+  hintsEnabled: false,
   repeatCardForPlayer: null,
 };
 
@@ -105,6 +108,7 @@ type Action =
   | { type: "SET_IMPOSTOR_COUNT"; count: 1 | 2 | 3 }
   | { type: "SET_LOCALE"; locale: Locale }
   | { type: "TOGGLE_CATEGORY_VISIBILITY" }
+  | { type: "TOGGLE_HINTS" }
   | { type: "START_GAME" }
   | { type: "NEXT_PLAYER" }
   | { type: "REVEAL_ROLE"; playerName: string }
@@ -156,6 +160,9 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
 
     case "TOGGLE_CATEGORY_VISIBILITY":
       return { ...state, categoryVisibility: !state.categoryVisibility };
+
+    case "TOGGLE_HINTS":
+      return { ...state, hintsEnabled: !state.hintsEnabled };
 
     case "START_GAME": {
       const validPlayers = state.players.filter((p) => p.trim() !== "");
@@ -386,6 +393,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "TOGGLE_CATEGORY_VISIBILITY" });
   }, []);
 
+  const toggleHints = useCallback(() => {
+    dispatch({ type: "TOGGLE_HINTS" });
+  }, []);
+
   const startGame = useCallback(() => {
     dispatch({ type: "START_GAME" });
   }, []);
@@ -439,6 +450,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setImpostorCount,
     setLocale,
     toggleCategoryVisibility,
+    toggleHints,
     startGame,
     nextPlayer,
     revealRole,

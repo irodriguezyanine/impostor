@@ -12,6 +12,7 @@ type GameCardProps = {
   secretWord?: string;
   categoryNames?: string[];
   showCategories?: boolean;
+  hintsEnabled?: boolean;
   onReveal: () => void;
   onHide: () => void;
   onFlipComplete?: () => void;
@@ -24,6 +25,7 @@ export function GameCard({
   secretWord = "",
   categoryNames = [],
   showCategories = true,
+  hintsEnabled = false,
   onReveal,
   onHide,
   onFlipComplete,
@@ -124,6 +126,23 @@ export function GameCard({
                   {t.impostorReveal}
                 </p>
                 <p className="text-slate-400">{t.impostorDescription}</p>
+                {hintsEnabled && categoryNames.length > 0 && (
+                  <div className="pt-2 space-y-1">
+                    <p className="text-amber-400/90 text-sm font-medium">
+                      {t.impostorHintLabel}
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-1.5">
+                      {categoryNames.map((name) => (
+                        <span
+                          key={name}
+                          className="px-2.5 py-1 rounded-lg bg-amber-900/30 border border-amber-500/30 text-amber-200/90 text-xs font-medium"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
             <motion.button

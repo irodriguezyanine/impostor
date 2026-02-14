@@ -15,6 +15,7 @@ export default function GamePage() {
     gameState,
     selectedCategories,
     categoryVisibility,
+    hintsEnabled,
     repeatCardForPlayer,
     finishGame,
     revealAndFinish,
@@ -147,6 +148,7 @@ export default function GamePage() {
                   (c) => t.categories[c.id] ?? c.name
                 )}
                 showCategories={categoryVisibility}
+                hintsEnabled={hintsEnabled}
                 onReveal={handleReveal}
                 onHide={handleHide}
               />
@@ -178,6 +180,7 @@ export default function GamePage() {
                   (c) => t.categories[c.id] ?? c.name
                 )}
                 showCategories={categoryVisibility}
+                hintsEnabled={hintsEnabled}
                 onReveal={handleReveal}
                 onHide={handleHide}
                 onFlipComplete={
