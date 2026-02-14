@@ -34,10 +34,13 @@ export function GameCard({
 }: GameCardProps) {
   const t = useTranslations();
 
+  // Altura fija para que civil e impostor tengan el mismo tamaño (evita identificar al impostor)
+  const cardMinHeight = "min-h-[420px]";
+
   return (
     <div className="w-full max-w-md mx-auto perspective-1000">
       <motion.div
-        className="grid w-full min-h-[320px] preserve-3d [&>*]:col-start-1 [&>*]:row-start-1"
+        className={`grid w-full ${cardMinHeight} preserve-3d [&>*]:col-start-1 [&>*]:row-start-1`}
         initial={false}
         animate={{ rotateY: isRevealed ? 180 : 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 25 }}
@@ -45,10 +48,13 @@ export function GameCard({
           if (!isRevealed && onFlipComplete) onFlipComplete();
         }}
       >
-        {/* Frente: Pásale a X */}
+        {/* Frente: Pásale a X - pointer-events solo cuando visible para evitar clicks bloqueados en PC */}
         <motion.div
-          className="min-h-[320px] w-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
-          style={{ backfaceVisibility: "hidden" }}
+          className={`${cardMinHeight} w-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center`}
+          style={{
+            backfaceVisibility: "hidden",
+            pointerEvents: isRevealed ? "none" : "auto",
+          }}
         >
           <div className="text-center space-y-6">
             <p className="text-slate-300 text-lg">
@@ -62,7 +68,10 @@ export function GameCard({
                 e.stopPropagation();
                 onReveal();
               }}
-              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2 touch-manipulation select-none cursor-pointer active:scale-[0.98] transition-transform min-h-[48px]"
+              onPointerDown={(e) => {
+                e.stopPropagation();
+              }}
+              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2 touch-manipulation select-none cursor-pointer active:scale-[0.98] transition-transform min-h-[52px] relative z-10"
             >
               <Eye size={24} />
               {t.revealRole}
@@ -95,12 +104,13 @@ export function GameCard({
           </div>
         </motion.div>
 
-        {/* Reverso: Rol revelado - la tarjeta crece con el contenido, sin scroll */}
+        {/* Reverso: Rol revelado - mismo tamaño que frente para no delatar al impostor */}
         <motion.div
-          className="min-h-[320px] w-full min-w-0 backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
+          className={`${cardMinHeight} w-full min-w-0 backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center`}
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
+            pointerEvents: isRevealed ? "auto" : "none",
           }}
         >
           <div className="text-center space-y-6">
