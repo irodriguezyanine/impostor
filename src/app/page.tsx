@@ -115,16 +115,16 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Marca de agua y enlace crear categoría - sutiles, no interfieren */}
+      {/* Marca de agua PC: fija a la derecha, se desliza con el scroll */}
       <div
-        className="fixed right-3 bottom-36 md:right-6 md:bottom-40 z-20 flex flex-col items-end gap-1.5 opacity-25 hover:opacity-45 transition-opacity duration-300 select-none"
+        className="hidden md:flex fixed right-6 bottom-40 z-20 flex-col items-end gap-1.5 opacity-25 hover:opacity-45 transition-opacity duration-300 select-none"
         aria-label="Créditos y crear categoría"
       >
         <a
           href="https://www.imaginatuweb.cl"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[10px] md:text-xs text-slate-500 hover:text-slate-400 transition-colors leading-tight"
+          className="text-xs text-slate-500 hover:text-slate-400 transition-colors leading-tight"
         >
           Página creada por Imaginatuweb.cl
         </a>
@@ -132,13 +132,36 @@ export default function HomePage() {
           href="https://wa.me/56976488856?text=Quiero%20crear%20mi%20categoria%20por%20%2420.000"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[10px] md:text-xs text-slate-500 hover:text-slate-400 transition-colors leading-tight"
+          className="text-xs text-slate-500 hover:text-slate-400 transition-colors leading-tight"
         >
           Crea tu categoria acá
         </a>
       </div>
 
-      <div className="flex-shrink-0 py-8 px-5 flex items-center justify-center bg-background/90 backdrop-blur-md border-t border-white/15 shadow-[0_-4px_24px_rgba(0,0,0,0.15)] safe-bottom relative z-10 min-h-[120px]">
+      {/* Barra inferior: marca de agua móvil + botón */}
+      <div className="flex-shrink-0 py-6 px-5 flex flex-col items-center gap-4 bg-background/90 backdrop-blur-md border-t border-white/15 shadow-[0_-4px_24px_rgba(0,0,0,0.15)] safe-bottom relative z-10 min-h-[120px]">
+        {/* Marca de agua móvil: fija abajo, arriba del botón, un poco más grande */}
+        <div
+          className="md:hidden flex flex-col items-center gap-1.5 opacity-30 hover:opacity-50 transition-opacity duration-300 select-none"
+          aria-label="Créditos y crear categoría"
+        >
+          <a
+            href="https://www.imaginatuweb.cl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-slate-500 hover:text-slate-400 transition-colors leading-tight"
+          >
+            Página creada por Imaginatuweb.cl
+          </a>
+          <a
+            href="https://wa.me/56976488856?text=Quiero%20crear%20mi%20categoria%20por%20%2420.000"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-slate-500 hover:text-slate-400 transition-colors leading-tight"
+          >
+            Crea tu categoria acá
+          </a>
+        </div>
         <div className="w-full max-w-lg flex justify-center">
           <motion.button
             whileTap={{ scale: 0.98 }}
