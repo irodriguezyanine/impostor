@@ -240,7 +240,9 @@ export default function GamePage() {
                 showCategories={categoryVisibility}
                 hintsEnabled={hintsEnabled}
                 secretWordHint={
-                  nextPlayer ? getHintForPlayer(nextPlayer) : null
+                  flippingToNextIndex !== null
+                    ? (currentPlayer ? getHintForPlayer(currentPlayer) : null)
+                    : (nextPlayer ? getHintForPlayer(nextPlayer) : null)
                 }
                 onReveal={handleReveal}
                 onHide={handleHide}

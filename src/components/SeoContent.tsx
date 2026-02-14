@@ -9,7 +9,7 @@ import React from "react";
 export function SeoContent() {
   return (
     <section
-      className="bg-surface/60 rounded-2xl border border-white/5 p-5 text-slate-500 text-sm leading-relaxed"
+      className="sr-only"
       aria-labelledby="seo-about-title"
     >
       <h2

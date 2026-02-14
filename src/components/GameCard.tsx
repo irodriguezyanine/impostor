@@ -37,7 +37,7 @@ export function GameCard({
   return (
     <div className="w-full max-w-md mx-auto perspective-1000">
       <motion.div
-        className="relative w-full min-h-[320px] preserve-3d"
+        className="grid w-full min-h-[320px] preserve-3d [&>*]:col-start-1 [&>*]:row-start-1"
         initial={false}
         animate={{ rotateY: isRevealed ? 180 : 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 25 }}
@@ -47,7 +47,7 @@ export function GameCard({
       >
         {/* Frente: Pásale a X */}
         <motion.div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
+          className="min-h-[320px] w-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="text-center space-y-6">
@@ -95,9 +95,9 @@ export function GameCard({
           </div>
         </motion.div>
 
-        {/* Reverso: Rol revelado */}
+        {/* Reverso: Rol revelado - la tarjeta crece con el contenido, sin scroll */}
         <motion.div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center overflow-y-auto"
+          className="min-h-[320px] w-full min-w-0 backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",

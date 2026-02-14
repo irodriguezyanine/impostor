@@ -112,7 +112,7 @@ export default function HomePage() {
             {/* Botón ¿Cómo jugar? debajo de categorías */}
             <HowToPlay />
 
-            {/* Contenido SEO visible: impostor, juego impostor, impostor fútbol, impostor chile, jugar impostor gratis */}
+            {/* Contenido SEO: invisible (sr-only), visible para crawlers */}
             <SeoContent />
           </motion.main>
           <div className="h-28" />

@@ -337,18 +337,28 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       const hints = shuffleArray(getHintsForWord(cat, secretWord));
       const shuffledOrder = shuffleArray(validPlayers);
 
-      const impostorIndices = new Set<number>();
-      while (impostorIndices.size < state.impostorCount) {
-        impostorIndices.add(
-          Math.floor(Math.random() * shuffledOrder.length)
-        );
+      // Excluir impostores anteriores para que no les toque de nuevo
+      const previousImpostors = state.gameState
+        ? (Object.entries(state.gameState.playerRoles)
+            .filter(([, r]) => r === "impostor")
+            .map(([n]) => n) as string[])
+        : [];
+      const candidatePool = validPlayers.filter(
+        (p) => !previousImpostors.includes(p)
+      );
+      const pool =
+        candidatePool.length >= state.impostorCount
+          ? candidatePool
+          : validPlayers;
+
+      const impostorNames: string[] = [];
+      const shuffledPool = shuffleArray([...pool]);
+      for (let i = 0; impostorNames.length < state.impostorCount && i < shuffledPool.length; i++) {
+        impostorNames.push(shuffledPool[i]);
       }
 
       const playerRoles: Record<string, PlayerRole> = {};
       const impostorHints: Record<string, string> = {};
-      const impostorNames = shuffledOrder
-        .map((name, idx) => (impostorIndices.has(idx) ? name : null))
-        .filter(Boolean) as string[];
       impostorNames.forEach((name, i) => {
         playerRoles[name] = "impostor";
         impostorHints[name] = hints[i % hints.length];
