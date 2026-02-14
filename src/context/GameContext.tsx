@@ -18,6 +18,7 @@ export type PlayerRole = "civilian" | "impostor";
 
 export type GameState = {
   secretWord: string;
+  categoryId: string; // Para poder calcular pistas de fallback
   /** Pista asignada por impostor (cada uno recibe una distinta de las 3 disponibles) */
   impostorHints: Record<string, string>;
   playerRoles: Record<string, PlayerRole>;
@@ -215,6 +216,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         phase: "passing",
         gameState: {
           secretWord,
+          categoryId: cat.id,
           impostorHints,
           playerRoles,
           shuffledOrder,
@@ -362,6 +364,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         phase: "passing",
         gameState: {
           secretWord,
+          categoryId: cat.id,
           impostorHints,
           playerRoles,
           shuffledOrder,

@@ -129,11 +129,11 @@ export function GameCard({
                 </p>
                 <p className="text-slate-400">{t.impostorDescription}</p>
                 {hintsEnabled && secretWordHint && (
-                  <div className="pt-2">
-                    <p className="text-amber-400/90 text-sm font-medium mb-1">
+                  <div className="pt-3 px-4 py-3 rounded-xl bg-amber-500/15 border border-amber-500/30">
+                    <p className="text-amber-400 text-xs font-medium mb-1 uppercase tracking-wide">
                       {t.impostorHintLabel}
                     </p>
-                    <p className="text-amber-200/90 font-semibold">
+                    <p className="text-amber-100 font-bold text-lg">
                       {secretWordHint}
                     </p>
                   </div>

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameCard } from "@/components/GameCard";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Play, ChevronDown, X } from "lucide-react";
+import { CATEGORIES, getHintsForWord } from "@/data/categories";
 
 export default function GamePage() {
   const router = useRouter();
@@ -29,7 +30,14 @@ export default function GamePage() {
   const t = useTranslations();
   const [showPlayerPicker, setShowPlayerPicker] = useState(false);
   const [repeatCardRevealed, setRepeatCardRevealed] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const playerPickerRef = useRef<HTMLDivElement>(null);
+
+  const confirmExit = useCallback(() => {
+    finishGame();
+    setShowExitConfirm(false);
+    router.push("/");
+  }, [finishGame, router]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -50,6 +58,28 @@ export default function GamePage() {
       router.replace("/");
     }
   }, [phase, router]);
+
+  // Advertencia al refrescar o cerrar pestaña
+  useEffect(() => {
+    if (!gameState) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [gameState]);
+
+  // Advertencia al pulsar "atrás" del navegador: revertir navegación y mostrar diálogo
+  useEffect(() => {
+    if (!gameState) return;
+    history.pushState({ fromGame: true }, "", window.location.href);
+    const handlePopState = () => {
+      history.pushState({ fromGame: true }, "", window.location.href);
+      setShowExitConfirm(true);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [gameState]);
 
   const impostors = gameState
     ? Object.entries(gameState.playerRoles)
@@ -113,6 +143,23 @@ export default function GamePage() {
 
   const playersInGame = gameState ? gameState.shuffledOrder : [];
 
+  /** Obtiene la pista para un jugador impostor. Fallback si no está en impostorHints. */
+  const getHintForPlayer = useCallback(
+    (playerName: string): string | null => {
+      if (!gameState || gameState.playerRoles[playerName] !== "impostor")
+        return null;
+      const hint = gameState.impostorHints?.[playerName];
+      if (hint) return hint;
+      const cat = CATEGORIES.find((c) => c.id === gameState.categoryId);
+      if (cat) {
+        const hints = getHintsForWord(cat, gameState.secretWord);
+        return hints[0] ?? cat.name;
+      }
+      return null;
+    },
+    [gameState]
+  );
+
   return (
     <div className="min-h-screen bg-background pb-8 safe-bottom relative">
       <div className="absolute inset-0 bg-gradient-mesh" aria-hidden />
@@ -149,9 +196,7 @@ export default function GamePage() {
                 )}
                 showCategories={categoryVisibility}
                 hintsEnabled={hintsEnabled}
-                secretWordHint={
-                  gameState.impostorHints?.[repeatCardForPlayer] ?? null
-                }
+                secretWordHint={getHintForPlayer(repeatCardForPlayer)}
                 onReveal={handleReveal}
                 onHide={handleHide}
               />
@@ -166,10 +211,7 @@ export default function GamePage() {
             >
               <button
                 type="button"
-                onClick={() => {
-                  finishGame();
-                  router.push("/");
-                }}
+                onClick={() => setShowExitConfirm(true)}
                 className="absolute top-0 right-0 text-slate-500 hover:text-slate-400 text-sm font-medium transition-colors py-1 px-2 -mr-1"
               >
                 {t.finishShort}
@@ -185,9 +227,7 @@ export default function GamePage() {
                 showCategories={categoryVisibility}
                 hintsEnabled={hintsEnabled}
                 secretWordHint={
-                  nextPlayer
-                    ? gameState.impostorHints?.[nextPlayer] ?? null
-                    : null
+                  nextPlayer ? getHintForPlayer(nextPlayer) : null
                 }
                 onReveal={handleReveal}
                 onHide={handleHide}
@@ -230,10 +270,7 @@ export default function GamePage() {
 
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  finishGame();
-                  router.push("/");
-                }}
+                onClick={() => setShowExitConfirm(true)}
                 className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2"
               >
                 {t.backToHome}
@@ -333,15 +370,53 @@ export default function GamePage() {
                 </motion.button>
                 <motion.button
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    finishGame();
-                    router.push("/");
-                  }}
+                  onClick={() => setShowExitConfirm(true)}
                   className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold flex items-center justify-center gap-2 text-center border border-white/10"
                 >
                   {t.finishGameGoHome}
                 </motion.button>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Modal de confirmación al salir */}
+        <AnimatePresence>
+          {showExitConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowExitConfirm(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-surface rounded-2xl shadow-card border border-white/15 p-6 max-w-sm w-full"
+              >
+                <p className="text-lg font-semibold text-slate-100 text-center mb-6">
+                  {t.exitConfirmTitle}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowExitConfirm(false)}
+                    className="flex-1 py-3 rounded-xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold transition-colors"
+                  >
+                    {t.exitConfirmNo}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmExit}
+                    className="flex-1 py-3 rounded-xl bg-primary text-gray-900 font-bold transition-colors hover:opacity-90"
+                  >
+                    {t.exitConfirmYes}
+                  </button>
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
