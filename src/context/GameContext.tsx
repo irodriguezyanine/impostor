@@ -98,7 +98,7 @@ const initialState: GameContextState = {
   gameState: null,
   locale: "es",
   categoryVisibility: true,
-  hintsEnabled: false,
+  hintsEnabled: true, // Pistas activas por defecto para que los impostores vean ayuda
   repeatCardForPlayer: null,
 };
 
