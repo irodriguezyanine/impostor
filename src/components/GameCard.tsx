@@ -142,6 +142,25 @@ export function GameCard({
                   {t.impostorReveal}
                 </p>
                 <p className="text-slate-400">{t.impostorDescription}</p>
+                {showCategories && categoryNames.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-slate-500 text-xs font-medium">
+                      {categoryNames.length === 1
+                        ? t.categoryLabel
+                        : t.categoriesLabel}
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-1.5">
+                      {categoryNames.map((name) => (
+                        <span
+                          key={name}
+                          className="px-2.5 py-1 rounded-lg bg-surface-light border border-white/10 text-slate-300 text-xs font-medium"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {(hintsEnabled !== false) && (
                   <div className="pt-3 px-4 py-3 rounded-xl bg-amber-500/20 border-2 border-amber-500/40 flex-shrink-0">
                     <p className="text-amber-400 text-xs font-semibold mb-1 uppercase tracking-wider">

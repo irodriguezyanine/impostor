@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameCard } from "@/components/GameCard";
+import { ExitConfirmModal } from "@/components/ExitConfirmModal";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Play, ChevronDown, X } from "lucide-react";
@@ -30,6 +31,7 @@ export default function GamePage() {
   const t = useTranslations();
   const [showPlayerPicker, setShowPlayerPicker] = useState(false);
   const [repeatCardRevealed, setRepeatCardRevealed] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
   const playerPickerRef = useRef<HTMLDivElement>(null);
 
   const confirmExit = useCallback(() => {
@@ -38,10 +40,13 @@ export default function GamePage() {
   }, [finishGame, router]);
 
   const handleRequestExit = useCallback(() => {
-    if (typeof window !== "undefined" && window.confirm(t.exitConfirmTitle)) {
-      confirmExit();
-    }
-  }, [t.exitConfirmTitle, confirmExit]);
+    setShowExitModal(true);
+  }, []);
+
+  const handleConfirmExit = useCallback(() => {
+    setShowExitModal(false);
+    confirmExit();
+  }, [confirmExit]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -81,13 +86,11 @@ export default function GamePage() {
     history.pushState(state, "", window.location.href);
     const handlePopState = () => {
       history.pushState(state, "", window.location.href);
-      if (window.confirm(t.exitConfirmTitle)) {
-        confirmExit();
-      }
+      setShowExitModal(true);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [gameState, t.exitConfirmTitle, confirmExit]);
+  }, [gameState]);
 
   const impostors = gameState
     ? Object.entries(gameState.playerRoles)
@@ -174,6 +177,15 @@ export default function GamePage() {
   const playersInGame = gameState ? gameState.shuffledOrder : [];
 
   return (
+    <>
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        title={t.exitConfirmTitle}
+        confirmLabel={t.exitConfirmYes}
+        cancelLabel={t.exitConfirmNo}
+        onConfirm={handleConfirmExit}
+        onCancel={() => setShowExitModal(false)}
+      />
     <div className="min-h-screen bg-background pb-8 safe-bottom relative">
       <div className="absolute inset-0 bg-gradient-mesh" aria-hidden />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(163,230,53,0.06)_0%,transparent_50%)]" aria-hidden />
@@ -396,5 +408,6 @@ export default function GamePage() {
         </AnimatePresence>
       </div>
     </div>
+    </>
   );
 }

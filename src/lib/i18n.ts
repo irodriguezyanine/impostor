@@ -153,6 +153,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       peliculas: "Películas Famosas (Mundiales y Chilenas)",
       profesiones: "Profesiones y Profesionales",
       "palabras-chilenas": "Palabras Chilenas",
+      "paises-turisticos": "Países Turísticos",
     },
     howToPlayTitle: "¿Cómo jugar?",
     close: "Cerrar",
@@ -233,6 +234,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       peliculas: "Famous Movies (World & Chilean)",
       profesiones: "Professions and Professionals",
       "palabras-chilenas": "Chilean Words",
+      "paises-turisticos": "Tourist Countries",
     },
     howToPlayTitle: "How to play?",
     howToPlayContent:
@@ -313,6 +315,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       peliculas: "Filmes Famosos (Mundiais e Chilenos)",
       profesiones: "Profissões e Profissionais",
       "palabras-chilenas": "Palavras Chilenas",
+      "paises-turisticos": "Países Turísticos",
     },
     howToPlayTitle: "Como jogar?",
     howToPlayContent:
@@ -393,6 +396,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       peliculas: "Film Famosi (Mondiali e Cileni)",
       profesiones: "Professioni e Professionisti",
       "palabras-chilenas": "Parole Cilene",
+      "paises-turisticos": "Paesi Turistici",
     },
     howToPlayTitle: "Come si gioca?",
     howToPlayContent:
@@ -473,6 +477,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       peliculas: "Films Célèbres (Mondiaux et Chiliens)",
       profesiones: "Professions et Professionnels",
       "palabras-chilenas": "Mots Chiliens",
+      "paises-turisticos": "Pays Touristiques",
     },
     howToPlayTitle: "Comment jouer ?",
     howToPlayContent:
