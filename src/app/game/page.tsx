@@ -197,7 +197,7 @@ export default function GamePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="pt-8 relative"
+              className="pt-8 relative min-h-[452px]"
             >
               <button
                 type="button"
@@ -232,7 +232,7 @@ export default function GamePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="pt-8 relative"
+              className="pt-8 relative min-h-[452px]"
             >
               <button
                 type="button"
