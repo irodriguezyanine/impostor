@@ -101,7 +101,7 @@ export default function GamePage() {
       if (!cat) {
         cat = CATEGORIES.find((c) =>
           c.words.includes(gameState.secretWord)
-        ) ?? null;
+        );
       }
       if (cat) {
         const hints = getHintsForWord(cat, gameState.secretWord);
