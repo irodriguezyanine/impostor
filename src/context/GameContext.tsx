@@ -33,7 +33,8 @@ type GameContextState = {
   phase: GamePhase;
   gameState: GameState | null;
   locale: Locale;
-  categoryVisibility: boolean; // true = mostrar categorías en turnos, false = "Secreta"
+  categoryVisibility: boolean;
+  repeatCardForPlayer: string | null; // Jugador que debe ver su carta de nuevo (modal "Repetir vista")
 };
 
 type GameContextValue = GameContextState & {
@@ -53,6 +54,8 @@ type GameContextValue = GameContextState & {
   finishGame: () => void;
   restartCardView: () => void;
   restartGame: () => void;
+  showCardForPlayer: (playerName: string) => void;
+  clearRepeatCard: () => void;
 };
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -91,6 +94,7 @@ const initialState: GameContextState = {
   gameState: null,
   locale: "es",
   categoryVisibility: true,
+  repeatCardForPlayer: null,
 };
 
 type Action =
@@ -109,7 +113,9 @@ type Action =
   | { type: "FINISH_GAME" }
   | { type: "RESTART_CARD_VIEW" }
   | { type: "RESTART_GAME" }
-  | { type: "COMPLETE_FLIP_TO_NEXT" };
+  | { type: "COMPLETE_FLIP_TO_NEXT" }
+  | { type: "SHOW_CARD_FOR_PLAYER"; playerName: string }
+  | { type: "CLEAR_REPEAT_CARD" };
 
 function gameReducer(state: GameContextState, action: Action): GameContextState {
   switch (action.type) {
@@ -258,6 +264,12 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
 
     case "REVEAL_AND_FINISH":
       return { ...state, phase: "ended" };
+
+    case "SHOW_CARD_FOR_PLAYER":
+      return { ...state, repeatCardForPlayer: action.playerName };
+
+    case "CLEAR_REPEAT_CARD":
+      return { ...state, repeatCardForPlayer: null };
 
     case "FINISH_GAME":
       // Volver a setup manteniendo jugadores, categorías e impostores para jugar de nuevo rápido
@@ -410,6 +422,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "RESTART_GAME" });
   }, []);
 
+  const showCardForPlayer = useCallback((playerName: string) => {
+    dispatch({ type: "SHOW_CARD_FOR_PLAYER", playerName });
+  }, []);
+
+  const clearRepeatCard = useCallback(() => {
+    dispatch({ type: "CLEAR_REPEAT_CARD" });
+  }, []);
+
   const value: GameContextValue = {
     ...state,
     addPlayer,
@@ -428,6 +448,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     finishGame,
     restartCardView,
     restartGame,
+    showCardForPlayer,
+    clearRepeatCard,
   };
 
   return (

@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameCard } from "@/components/GameCard";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
-import { Play } from "lucide-react";
+import { Play, ChevronDown, X } from "lucide-react";
 
 export default function GamePage() {
   const router = useRouter();
@@ -15,15 +15,34 @@ export default function GamePage() {
     gameState,
     selectedCategories,
     categoryVisibility,
+    repeatCardForPlayer,
     finishGame,
     revealAndFinish,
-    restartCardView,
     restartGame,
     revealRole,
     hideRole,
     completeFlipToNext,
+    showCardForPlayer,
+    clearRepeatCard,
   } = useGame();
   const t = useTranslations();
+  const [showPlayerPicker, setShowPlayerPicker] = useState(false);
+  const [repeatCardRevealed, setRepeatCardRevealed] = useState(false);
+  const playerPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        showPlayerPicker &&
+        playerPickerRef.current &&
+        !playerPickerRef.current.contains(e.target as Node)
+      ) {
+        setShowPlayerPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showPlayerPicker]);
 
   useEffect(() => {
     if (phase === "setup") {
@@ -75,12 +94,23 @@ export default function GamePage() {
         : false;
 
   const handleReveal = () => {
-    if (currentPlayer) revealRole(currentPlayer);
+    if (repeatCardForPlayer) {
+      setRepeatCardRevealed(true);
+    } else if (currentPlayer) {
+      revealRole(currentPlayer);
+    }
   };
 
   const handleHide = () => {
-    hideRole();
+    if (repeatCardForPlayer) {
+      clearRepeatCard();
+      setRepeatCardRevealed(false);
+    } else {
+      hideRole();
+    }
   };
+
+  const playersInGame = gameState ? gameState.shuffledOrder : [];
 
   return (
     <div className="min-h-screen bg-background pb-8 safe-bottom relative">
@@ -88,7 +118,40 @@ export default function GamePage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(163,230,53,0.06)_0%,transparent_50%)]" aria-hidden />
       <div className="relative z-10 max-w-lg mx-auto px-4 pt-6 safe-top">
         <AnimatePresence mode="wait">
-          {phase === "passing" || phase === "revealing" ? (
+          {repeatCardForPlayer ? (
+            <motion.div
+              key="repeat-card"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="pt-8 relative"
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  clearRepeatCard();
+                  setRepeatCardRevealed(false);
+                }}
+                className="absolute top-0 right-0 text-slate-500 hover:text-slate-400 text-sm font-medium transition-colors py-1 px-2 -mr-1"
+              >
+                {t.finishShort}
+              </button>
+              <GameCard
+                playerName={repeatCardForPlayer}
+                isRevealed={repeatCardRevealed}
+                role={
+                  gameState.playerRoles[repeatCardForPlayer] ?? "civilian"
+                }
+                secretWord={gameState.secretWord}
+                categoryNames={selectedCategories.map(
+                  (c) => t.categories[c.id] ?? c.name
+                )}
+                showCategories={categoryVisibility}
+                onReveal={handleReveal}
+                onHide={handleHide}
+              />
+            </motion.div>
+          ) : phase === "passing" || phase === "revealing" ? (
             <motion.div
               key="pass-reveal"
               initial={{ opacity: 0 }}
@@ -198,13 +261,58 @@ export default function GamePage() {
                 >
                   {t.revealWordAndImpostor}
                 </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.98 }}
-                  onClick={restartCardView}
-                  className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold flex items-center justify-center gap-2 text-center border border-white/10"
-                >
-                  {t.repeatCardView}
-                </motion.button>
+                <div className="relative" ref={playerPickerRef}>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowPlayerPicker(!showPlayerPicker)}
+                    className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold flex items-center justify-center gap-2 text-center border border-white/10"
+                  >
+                    {t.repeatCardView}
+                    <ChevronDown
+                      size={20}
+                      className={`transition-transform ${
+                        showPlayerPicker ? "rotate-180" : ""
+                      }`}
+                    />
+                  </motion.button>
+                  {showPlayerPicker && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      className="absolute top-full left-0 right-0 mt-2 rounded-xl bg-surface border border-white/10 shadow-card overflow-hidden z-20"
+                    >
+                      <div className="p-3 border-b border-white/10">
+                        <p className="text-sm font-medium text-slate-200">
+                          {t.whoForgotCard}
+                        </p>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {playersInGame.map((name) => (
+                          <button
+                            key={name}
+                            type="button"
+                            onClick={() => {
+                              showCardForPlayer(name);
+                              setShowPlayerPicker(false);
+                            }}
+                            className="w-full px-4 py-3 text-left text-slate-200 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowPlayerPicker(false)}
+                        className="w-full px-4 py-3 text-slate-500 hover:bg-white/5 text-sm flex items-center justify-center gap-2"
+                      >
+                        <X size={16} />
+                        {t.close}
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={restartGame}
