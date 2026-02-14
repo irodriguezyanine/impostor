@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lightbulb, LightbulbOff } from "lucide-react";
 import type { Category } from "@/data/categories";
 import { CATEGORIES } from "@/data/categories";
 import { useGame } from "@/context/GameContext";
@@ -21,6 +21,8 @@ export function CategorySelector() {
     toggleCategory,
     categoryVisibility,
     toggleCategoryVisibility,
+    hintsEnabled,
+    toggleHints,
   } = useGame();
   const t = useTranslations();
   const [tooltipCategory, setTooltipCategory] = useState<string | null>(null);
@@ -69,6 +71,23 @@ export function CategorySelector() {
             <Eye size={22} strokeWidth={2} />
           ) : (
             <EyeOff size={22} />
+          )}
+        </motion.button>
+        <motion.button
+          type="button"
+          onClick={toggleHints}
+          whileTap={{ scale: 0.95 }}
+          title={hintsEnabled ? t.disableHints : t.enableHints}
+          className={`p-2 rounded-lg transition-colors ${
+            hintsEnabled
+              ? "text-primary hover:bg-primary/20"
+              : "text-slate-500 hover:bg-slate-500/20 hover:text-slate-400"
+          }`}
+        >
+          {hintsEnabled ? (
+            <Lightbulb size={22} strokeWidth={2} />
+          ) : (
+            <LightbulbOff size={22} />
           )}
         </motion.button>
       </div>

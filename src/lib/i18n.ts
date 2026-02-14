@@ -34,6 +34,9 @@ export type Translations = {
   categorySelection: string;
   showCategory: string;
   hideCategory: string;
+  enableHints: string;
+  disableHints: string;
+  impostorHintLabel: string;
   categoryLabel: string;
   categoriesLabel: string;
   categorySecret: string;
@@ -93,6 +96,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categorySelection: "Selecciona una o más categorías",
     showCategory: "Ver categoría",
     hideCategory: "No ver categoría",
+    enableHints: "Activar pistas",
+    disableHints: "Desactivar pistas",
+    impostorHintLabel: "Pista:",
     categoryLabel: "Categoría",
     categoriesLabel: "Categorías",
     categorySecret: "Secreta",
@@ -165,6 +171,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categorySelection: "Select one or more categories",
     showCategory: "Show category",
     hideCategory: "Hide category",
+    enableHints: "Enable hints",
+    disableHints: "Disable hints",
+    impostorHintLabel: "Hint:",
     categoryLabel: "Category",
     categoriesLabel: "Categories",
     categorySecret: "Secret",
@@ -237,6 +246,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categorySelection: "Selecione uma ou mais categorias",
     showCategory: "Ver categoria",
     hideCategory: "Não ver categoria",
+    enableHints: "Ativar pistas",
+    disableHints: "Desativar pistas",
+    impostorHintLabel: "Dica:",
     categoryLabel: "Categoria",
     categoriesLabel: "Categorias",
     categorySecret: "Secreta",
@@ -309,6 +321,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categorySelection: "Seleziona una o più categorie",
     showCategory: "Mostra categoria",
     hideCategory: "Nascondi categoria",
+    enableHints: "Attiva indizi",
+    disableHints: "Disattiva indizi",
+    impostorHintLabel: "Indizio:",
     categoryLabel: "Categoria",
     categoriesLabel: "Categorie",
     categorySecret: "Segreta",
@@ -381,6 +396,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     categorySelection: "Sélectionnez une ou plusieurs catégories",
     showCategory: "Voir la catégorie",
     hideCategory: "Masquer la catégorie",
+    enableHints: "Activer les indices",
+    disableHints: "Désactiver les indices",
+    impostorHintLabel: "Indice :",
     categoryLabel: "Catégorie",
     categoriesLabel: "Catégories",
     categorySecret: "Secrète",
