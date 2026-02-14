@@ -149,6 +149,7 @@ export default function GamePage() {
                 )}
                 showCategories={categoryVisibility}
                 hintsEnabled={hintsEnabled}
+                secretWordHint={gameState.secretWordHint}
                 onReveal={handleReveal}
                 onHide={handleHide}
               />
@@ -181,6 +182,7 @@ export default function GamePage() {
                 )}
                 showCategories={categoryVisibility}
                 hintsEnabled={hintsEnabled}
+                secretWordHint={gameState.secretWordHint}
                 onReveal={handleReveal}
                 onHide={handleHide}
                 onFlipComplete={

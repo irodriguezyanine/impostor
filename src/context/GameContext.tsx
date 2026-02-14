@@ -18,12 +18,13 @@ export type PlayerRole = "civilian" | "impostor";
 
 export type GameState = {
   secretWord: string;
+  secretWordHint: string | null; // Pista relacionada con la palabra (para impostores)
   playerRoles: Record<string, PlayerRole>;
   shuffledOrder: string[];
   currentPlayerIndex: number;
   firstPlayer: string;
   revealedPlayers: Set<string>;
-  flippingToNextIndex: number | null; // Durante el flip, retrasamos el avance para no revelar el rol del siguiente
+  flippingToNextIndex: number | null;
 };
 
 type GameContextState = {
@@ -175,6 +176,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       if (words.length === 0) return state;
 
       const secretWord = getRandomElement(words);
+      const secretWordHint = cat.wordHints?.[secretWord] ?? null;
       const shuffledOrder = shuffleArray(validPlayers);
 
       const impostorIndices = new Set<number>();
@@ -196,6 +198,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         phase: "passing",
         gameState: {
           secretWord,
+          secretWordHint,
           playerRoles,
           shuffledOrder,
           currentPlayerIndex: 0,
@@ -312,6 +315,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       if (words.length === 0) return state;
 
       const secretWord = getRandomElement(words);
+      const secretWordHint = cat.wordHints?.[secretWord] ?? null;
       const shuffledOrder = shuffleArray(validPlayers);
 
       const impostorIndices = new Set<number>();
@@ -333,6 +337,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         phase: "passing",
         gameState: {
           secretWord,
+          secretWordHint,
           playerRoles,
           shuffledOrder,
           currentPlayerIndex: 0,
