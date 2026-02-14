@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameCard } from "@/components/GameCard";
@@ -64,6 +65,7 @@ export default function GamePage() {
     if (!gameState) return;
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
+      e.returnValue = "";
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -72,9 +74,10 @@ export default function GamePage() {
   // Advertencia al pulsar "atrás" del navegador: revertir navegación y mostrar diálogo
   useEffect(() => {
     if (!gameState) return;
-    history.pushState({ fromGame: true }, "", window.location.href);
+    const state = { fromGame: true };
+    history.pushState(state, "", window.location.href);
     const handlePopState = () => {
-      history.pushState({ fromGame: true }, "", window.location.href);
+      history.pushState(state, "", window.location.href);
       setShowExitConfirm(true);
     };
     window.addEventListener("popstate", handlePopState);
@@ -94,7 +97,12 @@ export default function GamePage() {
         return null;
       const hint = gameState.impostorHints?.[playerName];
       if (hint) return hint;
-      const cat = CATEGORIES.find((c) => c.id === gameState.categoryId);
+      let cat = CATEGORIES.find((c) => c.id === gameState.categoryId);
+      if (!cat) {
+        cat = CATEGORIES.find((c) =>
+          c.words.includes(gameState.secretWord)
+        ) ?? null;
+      }
       if (cat) {
         const hints = getHintsForWord(cat, gameState.secretWord);
         return hints[0] ?? cat.name;
@@ -380,46 +388,50 @@ export default function GamePage() {
           )}
         </AnimatePresence>
 
-        {/* Modal de confirmación al salir */}
-        <AnimatePresence>
-          {showExitConfirm && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-              onClick={() => setShowExitConfirm(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-surface rounded-2xl shadow-card border border-white/15 p-6 max-w-sm w-full"
-              >
-                <p className="text-lg font-semibold text-slate-100 text-center mb-6">
-                  {t.exitConfirmTitle}
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowExitConfirm(false)}
-                    className="flex-1 py-3 rounded-xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold transition-colors"
+        {/* Modal de confirmación al salir - renderizado en body para estar siempre visible */}
+        {typeof document !== "undefined" &&
+          createPortal(
+            <AnimatePresence>
+              {showExitConfirm && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                  onClick={() => setShowExitConfirm(false)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="bg-surface rounded-2xl shadow-card border border-white/15 p-6 max-w-sm w-full"
                   >
-                    {t.exitConfirmNo}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmExit}
-                    className="flex-1 py-3 rounded-xl bg-primary text-gray-900 font-bold transition-colors hover:opacity-90"
-                  >
-                    {t.exitConfirmYes}
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
+                    <p className="text-lg font-semibold text-slate-100 text-center mb-6">
+                      {t.exitConfirmTitle}
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowExitConfirm(false)}
+                        className="flex-1 py-3 rounded-xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold transition-colors"
+                      >
+                        {t.exitConfirmNo}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={confirmExit}
+                        className="flex-1 py-3 rounded-xl bg-primary text-gray-900 font-bold transition-colors hover:opacity-90"
+                      >
+                        {t.exitConfirmYes}
+                      </button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body
           )}
-        </AnimatePresence>
       </div>
     </div>
   );

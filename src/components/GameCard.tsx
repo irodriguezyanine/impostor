@@ -93,7 +93,7 @@ export function GameCard({
 
         {/* Reverso: Rol revelado */}
         <motion.div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center overflow-y-auto"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
@@ -128,13 +128,13 @@ export function GameCard({
                   {t.impostorReveal}
                 </p>
                 <p className="text-slate-400">{t.impostorDescription}</p>
-                {hintsEnabled && secretWordHint && (
+                {hintsEnabled && (
                   <div className="pt-3 px-4 py-3 rounded-xl bg-amber-500/15 border border-amber-500/30">
                     <p className="text-amber-400 text-xs font-medium mb-1 uppercase tracking-wide">
                       {t.impostorHintLabel}
                     </p>
                     <p className="text-amber-100 font-bold text-lg">
-                      {secretWordHint}
+                      {secretWordHint || categoryNames?.[0] || t.categoryLabel}
                     </p>
                   </div>
                 )}
