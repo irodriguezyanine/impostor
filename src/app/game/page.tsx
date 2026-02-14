@@ -87,6 +87,23 @@ export default function GamePage() {
         .map(([name]) => name)
     : [];
 
+  /** Obtiene la pista para un jugador impostor. Fallback si no está en impostorHints. */
+  const getHintForPlayer = useCallback(
+    (playerName: string): string | null => {
+      if (!gameState || gameState.playerRoles[playerName] !== "impostor")
+        return null;
+      const hint = gameState.impostorHints?.[playerName];
+      if (hint) return hint;
+      const cat = CATEGORIES.find((c) => c.id === gameState.categoryId);
+      if (cat) {
+        const hints = getHintsForWord(cat, gameState.secretWord);
+        return hints[0] ?? cat.name;
+      }
+      return null;
+    },
+    [gameState]
+  );
+
   if (!gameState) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -142,23 +159,6 @@ export default function GamePage() {
   };
 
   const playersInGame = gameState ? gameState.shuffledOrder : [];
-
-  /** Obtiene la pista para un jugador impostor. Fallback si no está en impostorHints. */
-  const getHintForPlayer = useCallback(
-    (playerName: string): string | null => {
-      if (!gameState || gameState.playerRoles[playerName] !== "impostor")
-        return null;
-      const hint = gameState.impostorHints?.[playerName];
-      if (hint) return hint;
-      const cat = CATEGORIES.find((c) => c.id === gameState.categoryId);
-      if (cat) {
-        const hints = getHintsForWord(cat, gameState.secretWord);
-        return hints[0] ?? cat.name;
-      }
-      return null;
-    },
-    [gameState]
-  );
 
   return (
     <div className="min-h-screen bg-background pb-8 safe-bottom relative">

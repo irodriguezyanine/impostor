@@ -391,7 +391,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (stored && stored !== state.locale) {
       dispatch({ type: "SET_LOCALE", locale: stored });
     }
-  }, []);
+  }, [state.locale]);
 
   const addPlayer = useCallback((name?: string) => {
     dispatch({ type: "ADD_PLAYER", name });

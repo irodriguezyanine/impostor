@@ -116,6 +116,7 @@ export function CategorySelector() {
                 `}
               >
                 {category.iconImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={category.iconImage}
                     alt=""
