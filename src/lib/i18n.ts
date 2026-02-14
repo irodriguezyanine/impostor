@@ -78,6 +78,11 @@ export type Translations = {
   howToPlayTitle: string;
   howToPlayContent: string;
   close: string;
+
+  // Exit confirmation
+  exitConfirmTitle: string;
+  exitConfirmYes: string;
+  exitConfirmNo: string;
 };
 
 
@@ -148,6 +153,10 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       peliculas: "Películas Famosas (Mundiales y Chilenas)",
     },
     howToPlayTitle: "¿Cómo jugar?",
+    close: "Cerrar",
+    exitConfirmTitle: "¿Seguro que quieres salir?",
+    exitConfirmYes: "Sí, salir",
+    exitConfirmNo: "Volver a la partida",
     howToPlayContent:
       "Impostor es un juego de fiesta donde hay que descubrir quién está mintiendo. Acá te explicamos paso a paso:\n\n" +
       "**1. Preparación** — Agrega los nombres de los jugadores (mínimo 3). Elige una o más categorías de palabras (futbolistas, autos, animales, etc.). Define cuántos impostores habrá en la partida (1, 2 o 3).\n\n" +
@@ -155,7 +164,6 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**3. Durante el juego** — Se pasa el teléfono de jugador en jugador. Cada uno ve su rol en privado y luego oculta la pantalla. Entre todos conversan, hacen preguntas o dan pistas sobre la palabra sin decirla directamente.\n\n" +
       "**4. Objetivo** — Los civiles intentan descubrir quién es el impostor. El impostor intenta hacerse pasar por uno más sin que lo pillen.\n\n" +
       "**5. Final** — Cuando terminen de discutir, revelan la palabra secreta y quiénes eran los impostores. ¡A reírse con los que cayeron!",
-    close: "Cerrar",
   },
   en: {
     appTitle: "Impostor Chile",
@@ -231,6 +239,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**4. Goal** — Civilians try to discover who the impostor is. The impostor tries to blend in without getting caught.\n\n" +
       "**5. End** — When you finish discussing, reveal the secret word and who the impostors were. Have fun!",
     close: "Close",
+    exitConfirmTitle: "Are you sure you want to leave?",
+    exitConfirmYes: "Yes, leave",
+    exitConfirmNo: "Return to game",
   },
   pt: {
     appTitle: "Impostor Chile",
@@ -306,6 +317,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**4. Objetivo** — Os civis tentam descobrir quem é o impostor. O impostor tenta se passar por um deles sem ser pego.\n\n" +
       "**5. Final** — Quando terminarem de discutir, revelem a palavra secreta e quem eram os impostores. Divirtam-se!",
     close: "Fechar",
+    exitConfirmTitle: "Tem certeza que quer sair?",
+    exitConfirmYes: "Sim, sair",
+    exitConfirmNo: "Voltar à partida",
   },
   it: {
     appTitle: "Impostor Chile",
@@ -381,6 +395,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**4. Obiettivo** — I civili cercano di scoprire chi è l'impostore. L'impostore cerca di passare inosservato senza essere scoperto.\n\n" +
       "**5. Fine** — Quando avete finito di discutere, rivelate la parola segreta e chi erano gli impostori. Buon divertimento!",
     close: "Chiudi",
+    exitConfirmTitle: "Sei sicuro di voler uscire?",
+    exitConfirmYes: "Sì, esci",
+    exitConfirmNo: "Torna alla partita",
   },
   fr: {
     appTitle: "Impostor Chile",
@@ -456,5 +473,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "**4. Objectif** — Les civils tentent de découvrir qui est l'imposteur. L'imposteur essaie de se fondre parmi les autres sans se faire prendre.\n\n" +
       "**5. Fin** — Quand vous avez fini de discuter, révélez le mot secret et qui étaient les imposteurs. Amusez-vous bien !",
     close: "Fermer",
+    exitConfirmTitle: "Êtes-vous sûr de vouloir quitter ?",
+    exitConfirmYes: "Oui, quitter",
+    exitConfirmNo: "Retour à la partie",
   },
 };
