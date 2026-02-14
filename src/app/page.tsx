@@ -7,6 +7,7 @@ import { PlayerInputList } from "@/components/PlayerInputList";
 import { CategorySelector } from "@/components/CategorySelector";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { HowToPlay } from "@/components/HowToPlay";
+import { SeoContent } from "@/components/SeoContent";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
 import { Minus, Plus } from "lucide-react";
@@ -34,7 +35,7 @@ export default function HomePage() {
     router.push("/game");
   };
 
-  const maxImpostors = Math.max(1, Math.min(3, validPlayers.length - 2));
+  const maxImpostors = Math.max(1, validPlayers.length - 2);
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
@@ -79,7 +80,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() =>
-                    setImpostorCount(Math.max(1, impostorCount - 1) as 1 | 2 | 3)
+                    setImpostorCount(Math.max(1, impostorCount - 1))
                   }
                   disabled={impostorCount <= 1}
                   className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200"
@@ -93,7 +94,7 @@ export default function HomePage() {
                   type="button"
                   onClick={() =>
                     setImpostorCount(
-                      Math.min(maxImpostors, impostorCount + 1) as 1 | 2 | 3
+                      Math.min(maxImpostors, impostorCount + 1)
                     )
                   }
                   disabled={impostorCount >= maxImpostors}
@@ -110,6 +111,9 @@ export default function HomePage() {
 
             {/* Botón ¿Cómo jugar? debajo de categorías */}
             <HowToPlay />
+
+            {/* Contenido SEO visible: impostor, juego impostor, impostor fútbol, impostor chile, jugar impostor gratis */}
+            <SeoContent />
           </motion.main>
           <div className="h-28" />
         </div>
