@@ -149,7 +149,9 @@ export default function GamePage() {
                 )}
                 showCategories={categoryVisibility}
                 hintsEnabled={hintsEnabled}
-                secretWordHint={gameState.secretWordHint}
+                secretWordHint={
+                  gameState.impostorHints?.[repeatCardForPlayer] ?? null
+                }
                 onReveal={handleReveal}
                 onHide={handleHide}
               />
@@ -182,7 +184,11 @@ export default function GamePage() {
                 )}
                 showCategories={categoryVisibility}
                 hintsEnabled={hintsEnabled}
-                secretWordHint={gameState.secretWordHint}
+                secretWordHint={
+                  nextPlayer
+                    ? gameState.impostorHints?.[nextPlayer] ?? null
+                    : null
+                }
                 onReveal={handleReveal}
                 onHide={handleHide}
                 onFlipComplete={

@@ -1,0 +1,20 @@
+{
+  "name": "Impostor Chile - Juego Impostor Gratis",
+  "short_name": "Impostor Chile",
+  "description": "Juega impostor gratis en Chile. Juego impostor fútbol, famosos, películas y más. Sin publicidad.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "es-CL"
+}

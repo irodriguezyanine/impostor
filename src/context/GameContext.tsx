@@ -9,7 +9,7 @@ import React, {
   type ReactNode,
 } from "react";
 import type { Category } from "@/data/categories";
-import { CATEGORIES } from "@/data/categories";
+import { CATEGORIES, getHintsForWord } from "@/data/categories";
 import { LOCALES, type Locale } from "@/lib/i18n";
 
 export type GamePhase = "setup" | "passing" | "revealing" | "playing" | "ended";
@@ -18,7 +18,8 @@ export type PlayerRole = "civilian" | "impostor";
 
 export type GameState = {
   secretWord: string;
-  secretWordHint: string | null; // Pista relacionada con la palabra (para impostores)
+  /** Pista asignada por impostor (cada uno recibe una distinta de las 3 disponibles) */
+  impostorHints: Record<string, string>;
   playerRoles: Record<string, PlayerRole>;
   shuffledOrder: string[];
   currentPlayerIndex: number;
@@ -30,7 +31,7 @@ export type GameState = {
 type GameContextState = {
   players: string[];
   selectedCategories: Category[];
-  impostorCount: 1 | 2 | 3;
+  impostorCount: number;
   phase: GamePhase;
   gameState: GameState | null;
   locale: Locale;
@@ -44,7 +45,7 @@ type GameContextValue = GameContextState & {
   removePlayer: (index: number) => void;
   updatePlayer: (index: number, name: string) => void;
   toggleCategory: (category: Category) => void;
-  setImpostorCount: (count: 1 | 2 | 3) => void;
+  setImpostorCount: (count: number) => void;
   setLocale: (locale: Locale) => void;
   toggleCategoryVisibility: () => void;
   toggleHints: () => void;
@@ -106,7 +107,7 @@ type Action =
   | { type: "REMOVE_PLAYER"; index: number }
   | { type: "UPDATE_PLAYER"; index: number; name: string }
   | { type: "TOGGLE_CATEGORY"; category: Category }
-  | { type: "SET_IMPOSTOR_COUNT"; count: 1 | 2 | 3 }
+  | { type: "SET_IMPOSTOR_COUNT"; count: number }
   | { type: "SET_LOCALE"; locale: Locale }
   | { type: "TOGGLE_CATEGORY_VISIBILITY" }
   | { type: "TOGGLE_HINTS" }
@@ -128,12 +129,20 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       if (state.players.length >= 20) return state;
       return { ...state, players: [...state.players, ""] };
 
-    case "REMOVE_PLAYER":
+    case "REMOVE_PLAYER": {
       if (state.players.length <= 2) return state;
+      const newPlayers = state.players.filter((_, i) => i !== action.index);
+      const newMaxImpostors = Math.max(1, newPlayers.length - 2);
+      const newImpostorCount = Math.min(
+        state.impostorCount,
+        newMaxImpostors
+      );
       return {
         ...state,
-        players: state.players.filter((_, i) => i !== action.index),
+        players: newPlayers,
+        impostorCount: newImpostorCount,
       };
+    }
 
     case "UPDATE_PLAYER":
       return {
@@ -176,7 +185,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       if (words.length === 0) return state;
 
       const secretWord = getRandomElement(words);
-      const secretWordHint = cat.wordHints?.[secretWord] ?? null;
+      const hints = shuffleArray(getHintsForWord(cat, secretWord));
       const shuffledOrder = shuffleArray(validPlayers);
 
       const impostorIndices = new Set<number>();
@@ -187,8 +196,16 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       }
 
       const playerRoles: Record<string, PlayerRole> = {};
-      shuffledOrder.forEach((name, idx) => {
-        playerRoles[name] = impostorIndices.has(idx) ? "impostor" : "civilian";
+      const impostorHints: Record<string, string> = {};
+      const impostorNames = shuffledOrder
+        .map((name, idx) => (impostorIndices.has(idx) ? name : null))
+        .filter(Boolean) as string[];
+      impostorNames.forEach((name, i) => {
+        playerRoles[name] = "impostor";
+        impostorHints[name] = hints[i % hints.length];
+      });
+      shuffledOrder.forEach((name) => {
+        if (playerRoles[name] !== "impostor") playerRoles[name] = "civilian";
       });
 
       const firstPlayer = getRandomElement(shuffledOrder);
@@ -198,7 +215,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         phase: "passing",
         gameState: {
           secretWord,
-          secretWordHint,
+          impostorHints,
           playerRoles,
           shuffledOrder,
           currentPlayerIndex: 0,
@@ -315,7 +332,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       if (words.length === 0) return state;
 
       const secretWord = getRandomElement(words);
-      const secretWordHint = cat.wordHints?.[secretWord] ?? null;
+      const hints = shuffleArray(getHintsForWord(cat, secretWord));
       const shuffledOrder = shuffleArray(validPlayers);
 
       const impostorIndices = new Set<number>();
@@ -326,8 +343,16 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
       }
 
       const playerRoles: Record<string, PlayerRole> = {};
-      shuffledOrder.forEach((name, idx) => {
-        playerRoles[name] = impostorIndices.has(idx) ? "impostor" : "civilian";
+      const impostorHints: Record<string, string> = {};
+      const impostorNames = shuffledOrder
+        .map((name, idx) => (impostorIndices.has(idx) ? name : null))
+        .filter(Boolean) as string[];
+      impostorNames.forEach((name, i) => {
+        playerRoles[name] = "impostor";
+        impostorHints[name] = hints[i % hints.length];
+      });
+      shuffledOrder.forEach((name) => {
+        if (playerRoles[name] !== "impostor") playerRoles[name] = "civilian";
       });
 
       const firstPlayer = getRandomElement(shuffledOrder);
@@ -337,7 +362,7 @@ function gameReducer(state: GameContextState, action: Action): GameContextState 
         phase: "passing",
         gameState: {
           secretWord,
-          secretWordHint,
+          impostorHints,
           playerRoles,
           shuffledOrder,
           currentPlayerIndex: 0,
@@ -381,7 +406,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "TOGGLE_CATEGORY", category });
   }, []);
 
-  const setImpostorCount = useCallback((count: 1 | 2 | 3) => {
+  const setImpostorCount = useCallback((count: number) => {
     dispatch({ type: "SET_IMPOSTOR_COUNT", count });
   }, []);
 
