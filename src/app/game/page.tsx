@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameCard } from "@/components/GameCard";
@@ -31,14 +30,18 @@ export default function GamePage() {
   const t = useTranslations();
   const [showPlayerPicker, setShowPlayerPicker] = useState(false);
   const [repeatCardRevealed, setRepeatCardRevealed] = useState(false);
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const playerPickerRef = useRef<HTMLDivElement>(null);
 
   const confirmExit = useCallback(() => {
     finishGame();
-    setShowExitConfirm(false);
     router.push("/");
   }, [finishGame, router]);
+
+  const handleRequestExit = useCallback(() => {
+    if (typeof window !== "undefined" && window.confirm(t.exitConfirmTitle)) {
+      confirmExit();
+    }
+  }, [t.exitConfirmTitle, confirmExit]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -71,18 +74,20 @@ export default function GamePage() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [gameState]);
 
-  // Advertencia al pulsar "atrás" del navegador: revertir navegación y mostrar diálogo
+  // Advertencia al pulsar "atrás" del navegador: revertir navegación y mostrar confirmación
   useEffect(() => {
     if (!gameState) return;
     const state = { fromGame: true };
     history.pushState(state, "", window.location.href);
     const handlePopState = () => {
       history.pushState(state, "", window.location.href);
-      setShowExitConfirm(true);
+      if (window.confirm(t.exitConfirmTitle)) {
+        confirmExit();
+      }
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [gameState]);
+  }, [gameState, t.exitConfirmTitle, confirmExit]);
 
   const impostors = gameState
     ? Object.entries(gameState.playerRoles)
@@ -219,7 +224,7 @@ export default function GamePage() {
             >
               <button
                 type="button"
-                onClick={() => setShowExitConfirm(true)}
+                onClick={handleRequestExit}
                 className="absolute top-0 right-0 text-slate-500 hover:text-slate-400 text-sm font-medium transition-colors py-1 px-2 -mr-1"
               >
                 {t.finishShort}
@@ -278,7 +283,7 @@ export default function GamePage() {
 
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setShowExitConfirm(true)}
+                onClick={handleRequestExit}
                 className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2"
               >
                 {t.backToHome}
@@ -378,7 +383,7 @@ export default function GamePage() {
                 </motion.button>
                 <motion.button
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowExitConfirm(true)}
+                  onClick={handleRequestExit}
                   className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold flex items-center justify-center gap-2 text-center border border-white/10"
                 >
                   {t.finishGameGoHome}
@@ -387,51 +392,6 @@ export default function GamePage() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Modal de confirmación al salir - renderizado en body para estar siempre visible */}
-        {typeof document !== "undefined" &&
-          createPortal(
-            <AnimatePresence>
-              {showExitConfirm && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                  onClick={() => setShowExitConfirm(false)}
-                >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="bg-surface rounded-2xl shadow-card border border-white/15 p-6 max-w-sm w-full"
-                  >
-                    <p className="text-lg font-semibold text-slate-100 text-center mb-6">
-                      {t.exitConfirmTitle}
-                    </p>
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setShowExitConfirm(false)}
-                        className="flex-1 py-3 rounded-xl bg-surface-light hover:bg-slate-500/50 text-slate-200 font-bold transition-colors"
-                      >
-                        {t.exitConfirmNo}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={confirmExit}
-                        className="flex-1 py-3 rounded-xl bg-primary text-gray-900 font-bold transition-colors hover:opacity-90"
-                      >
-                        {t.exitConfirmYes}
-                      </button>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>,
-            document.body
-          )}
       </div>
     </div>
   );

@@ -55,14 +55,18 @@ export function GameCard({
               {t.passTo}{" "}
               <span className="font-bold text-slate-100">{playerName}</span>
             </p>
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={onReveal}
-              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2"
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onReveal();
+              }}
+              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2 touch-manipulation select-none cursor-pointer active:scale-[0.98] transition-transform min-h-[48px]"
             >
               <Eye size={24} />
               {t.revealRole}
-            </motion.button>
+            </button>
             <div className="pt-2">
               {showCategories && categoryNames.length > 0 ? (
                 <div className="space-y-2">
@@ -128,12 +132,12 @@ export function GameCard({
                   {t.impostorReveal}
                 </p>
                 <p className="text-slate-400">{t.impostorDescription}</p>
-                {hintsEnabled && (
-                  <div className="pt-3 px-4 py-3 rounded-xl bg-amber-500/15 border border-amber-500/30">
-                    <p className="text-amber-400 text-xs font-medium mb-1 uppercase tracking-wide">
+                {(hintsEnabled !== false) && (
+                  <div className="pt-3 px-4 py-3 rounded-xl bg-amber-500/20 border-2 border-amber-500/40 flex-shrink-0">
+                    <p className="text-amber-400 text-xs font-semibold mb-1 uppercase tracking-wider">
                       {t.impostorHintLabel}
                     </p>
-                    <p className="text-amber-100 font-bold text-lg">
+                    <p className="text-amber-50 font-bold text-lg leading-tight">
                       {secretWordHint || categoryNames?.[0] || t.categoryLabel}
                     </p>
                   </div>

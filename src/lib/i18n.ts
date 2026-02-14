@@ -151,6 +151,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famosos Chilenos (Personajes de TV, Historia y Farándula)",
       peliculas: "Películas Famosas (Mundiales y Chilenas)",
+      profesiones: "Profesiones y Profesionales",
     },
     howToPlayTitle: "¿Cómo jugar?",
     close: "Cerrar",
@@ -229,6 +230,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famous Chileans (TV, History & Celebrities)",
       peliculas: "Famous Movies (World & Chilean)",
+      profesiones: "Professions and Professionals",
     },
     howToPlayTitle: "How to play?",
     howToPlayContent:
@@ -307,6 +309,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famosos Chilenos (Personagens de TV, História e Celebridades)",
       peliculas: "Filmes Famosos (Mundiais e Chilenos)",
+      profesiones: "Profissões e Profissionais",
     },
     howToPlayTitle: "Como jogar?",
     howToPlayContent:
@@ -385,6 +388,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Famosi Cileni (TV, Storia e Celebrità)",
       peliculas: "Film Famosi (Mondiali e Cileni)",
+      profesiones: "Professioni e Professionisti",
     },
     howToPlayTitle: "Come si gioca?",
     howToPlayContent:
@@ -463,6 +467,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "alamicos-rfc": "Alamicos R.F.C",
       "famosos-chilenos": "Célébrités Chiliennes (TV, Histoire et People)",
       peliculas: "Films Célèbres (Mondiaux et Chiliens)",
+      profesiones: "Professions et Professionnels",
     },
     howToPlayTitle: "Comment jouer ?",
     howToPlayContent:
