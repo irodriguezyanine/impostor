@@ -93,6 +93,9 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   category: "games",
+  verification: {
+    google: "YZXehpM15tw-xdepmt05VKMsiJ7zqJdmxqq5com39KY",
+  },
   other: {
     "geo.region": "CL",
     "application-name": "Impostor Chile",
