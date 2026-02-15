@@ -7,7 +7,7 @@ import { LocaleSync } from "@/components/LocaleSync";
 const inter = Inter({ subsets: ["latin"] });
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://impostorchile.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://elimpostor.cl";
 
 const seoTitle =
   "Impostor Chile - Jugar Impostor Gratis | Juego Impostor Fútbol y Más";

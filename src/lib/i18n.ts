@@ -154,6 +154,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       profesiones: "Profesiones y Profesionales",
       "palabras-chilenas": "Palabras Chilenas",
       "paises-turisticos": "Países Turísticos",
+      "mundiales-futbol": "Mundiales de Fútbol",
     },
     howToPlayTitle: "¿Cómo jugar?",
     close: "Cerrar",
@@ -235,6 +236,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       profesiones: "Professions and Professionals",
       "palabras-chilenas": "Chilean Words",
       "paises-turisticos": "Tourist Countries",
+      "mundiales-futbol": "Football World Cups",
     },
     howToPlayTitle: "How to play?",
     howToPlayContent:
@@ -316,6 +318,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       profesiones: "Profissões e Profissionais",
       "palabras-chilenas": "Palavras Chilenas",
       "paises-turisticos": "Países Turísticos",
+      "mundiales-futbol": "Copas do Mundo de Futebol",
     },
     howToPlayTitle: "Como jogar?",
     howToPlayContent:
@@ -397,6 +400,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       profesiones: "Professioni e Professionisti",
       "palabras-chilenas": "Parole Cilene",
       "paises-turisticos": "Paesi Turistici",
+      "mundiales-futbol": "Mondiali di Calcio",
     },
     howToPlayTitle: "Come si gioca?",
     howToPlayContent:
@@ -478,6 +482,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       profesiones: "Professions et Professionnels",
       "palabras-chilenas": "Mots Chiliens",
       "paises-turisticos": "Pays Touristiques",
+      "mundiales-futbol": "Coupes du Monde de Football",
     },
     howToPlayTitle: "Comment jouer ?",
     howToPlayContent:

@@ -21,6 +21,16 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: [],
       },
+      {
+        userAgent: "FacebookBot",
+        allow: "/",
+        disallow: [],
+      },
+      {
+        userAgent: "WhatsApp",
+        allow: "/",
+        disallow: [],
+      },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl,
