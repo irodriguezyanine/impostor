@@ -32,7 +32,10 @@ export default function GamePage() {
   const [showPlayerPicker, setShowPlayerPicker] = useState(false);
   const [repeatCardRevealed, setRepeatCardRevealed] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showReloadModal, setShowReloadModal] = useState(false);
   const playerPickerRef = useRef<HTMLDivElement>(null);
+
+  const RELOAD_CONFIRMED_KEY = "impostor_reload_confirmed";
 
   const confirmExit = useCallback(() => {
     finishGame();
@@ -47,6 +50,14 @@ export default function GamePage() {
     setShowExitModal(false);
     confirmExit();
   }, [confirmExit]);
+
+  const handleConfirmReload = useCallback(() => {
+    setShowReloadModal(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(RELOAD_CONFIRMED_KEY, "1");
+      window.location.reload();
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -68,15 +79,32 @@ export default function GamePage() {
     }
   }, [phase, router]);
 
-  // Advertencia al refrescar o cerrar pestaña
+  // Advertencia al refrescar o cerrar pestaña: si el usuario confirmó recarga desde nuestro modal, permitir sin diálogo nativo
   useEffect(() => {
     if (!gameState) return;
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (sessionStorage.getItem(RELOAD_CONFIRMED_KEY) === "1") {
+        sessionStorage.removeItem(RELOAD_CONFIRMED_KEY);
+        return; // Permitir recarga sin mostrar diálogo nativo
+      }
       e.preventDefault();
       e.returnValue = "";
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [gameState]);
+
+  // Interceptar F5 y Ctrl+R para mostrar nuestro modal en lugar del diálogo nativo del navegador
+  useEffect(() => {
+    if (!gameState) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
+        e.preventDefault();
+        setShowReloadModal(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gameState]);
 
   // Advertencia al pulsar "atrás" del navegador: revertir navegación y mostrar confirmación
@@ -185,6 +213,14 @@ export default function GamePage() {
         cancelLabel={t.exitConfirmNo}
         onConfirm={handleConfirmExit}
         onCancel={() => setShowExitModal(false)}
+      />
+      <ExitConfirmModal
+        isOpen={showReloadModal}
+        title={t.reloadConfirmTitle}
+        confirmLabel={t.reloadConfirmYes}
+        cancelLabel={t.reloadConfirmNo}
+        onConfirm={handleConfirmReload}
+        onCancel={() => setShowReloadModal(false)}
       />
     <div className="min-h-screen bg-background pb-8 safe-bottom relative">
       <div className="absolute inset-0 bg-gradient-mesh" aria-hidden />

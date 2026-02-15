@@ -85,6 +85,11 @@ export type Translations = {
   exitConfirmTitle: string;
   exitConfirmYes: string;
   exitConfirmNo: string;
+
+  // Reload confirmation (mismo formato que exit)
+  reloadConfirmTitle: string;
+  reloadConfirmYes: string;
+  reloadConfirmNo: string;
 };
 
 
@@ -166,6 +171,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     exitConfirmTitle: "¿Seguro que quieres salir?",
     exitConfirmYes: "Sí, salir",
     exitConfirmNo: "Volver a la partida",
+    reloadConfirmTitle: "¿Deseas recargar la página?",
+    reloadConfirmYes: "Recargar",
+    reloadConfirmNo: "Cancelar",
     howToPlayContent:
       "Impostor es un juego de fiesta donde hay que descubrir quién está mintiendo. Acá te explicamos paso a paso:\n\n" +
       "**1. Preparación** — Agrega los nombres de los jugadores (mínimo 3). Elige una o más categorías de palabras (futbolistas, autos, animales, etc.). Define cuántos impostores habrá en la partida (1, 2 o 3).\n\n" +
@@ -258,6 +266,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     exitConfirmTitle: "Are you sure you want to leave?",
     exitConfirmYes: "Yes, leave",
     exitConfirmNo: "Return to game",
+    reloadConfirmTitle: "Do you want to reload the page?",
+    reloadConfirmYes: "Reload",
+    reloadConfirmNo: "Cancel",
   },
   pt: {
     appTitle: "Impostor Chile",
@@ -343,6 +354,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     exitConfirmTitle: "Tem certeza que quer sair?",
     exitConfirmYes: "Sim, sair",
     exitConfirmNo: "Voltar à partida",
+    reloadConfirmTitle: "Deseja recarregar a página?",
+    reloadConfirmYes: "Recarregar",
+    reloadConfirmNo: "Cancelar",
   },
   it: {
     appTitle: "Impostor Chile",
@@ -428,6 +442,9 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     exitConfirmTitle: "Sei sicuro di voler uscire?",
     exitConfirmYes: "Sì, esci",
     exitConfirmNo: "Torna alla partita",
+    reloadConfirmTitle: "Vuoi ricaricare la pagina?",
+    reloadConfirmYes: "Ricarica",
+    reloadConfirmNo: "Annulla",
   },
   fr: {
     appTitle: "Impostor Chile",
@@ -513,5 +530,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     exitConfirmTitle: "Êtes-vous sûr de vouloir quitter ?",
     exitConfirmYes: "Oui, quitter",
     exitConfirmNo: "Retour à la partie",
+    reloadConfirmTitle: "Voulez-vous recharger la page ?",
+    reloadConfirmYes: "Recharger",
+    reloadConfirmNo: "Annuler",
   },
 };
