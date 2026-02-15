@@ -159,6 +159,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "palabras-chilenas": "Palabras Chilenas",
       "paises-turisticos": "Países Turísticos",
       "mundiales-futbol": "Mundiales de Fútbol",
+      "utiles-escolares": "Útiles Escolares y Cosas de Estuche",
     },
     howToPlayTitle: "¿Cómo jugar?",
     close: "Cerrar",
@@ -243,6 +244,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "palabras-chilenas": "Chilean Words",
       "paises-turisticos": "Tourist Countries",
       "mundiales-futbol": "Football World Cups",
+      "utiles-escolares": "School Supplies and Pencil Case Items",
     },
     howToPlayTitle: "How to play?",
     howToPlayContent:
@@ -327,6 +329,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "palabras-chilenas": "Palavras Chilenas",
       "paises-turisticos": "Países Turísticos",
       "mundiales-futbol": "Copas do Mundo de Futebol",
+      "utiles-escolares": "Material Escolar e Coisas de Estojo",
     },
     howToPlayTitle: "Como jogar?",
     howToPlayContent:
@@ -411,6 +414,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "palabras-chilenas": "Parole Cilene",
       "paises-turisticos": "Paesi Turistici",
       "mundiales-futbol": "Mondiali di Calcio",
+      "utiles-escolares": "Materiale Scolastico e Cose da Astuccio",
     },
     howToPlayTitle: "Come si gioca?",
     howToPlayContent:
@@ -495,6 +499,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       "palabras-chilenas": "Mots Chiliens",
       "paises-turisticos": "Pays Touristiques",
       "mundiales-futbol": "Coupes du Monde de Football",
+      "utiles-escolares": "Fournitures Scolaires et Affaires de Trousse",
     },
     howToPlayTitle: "Comment jouer ?",
     howToPlayContent:
