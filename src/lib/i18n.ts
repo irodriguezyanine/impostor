@@ -32,6 +32,8 @@ export type Translations = {
   impostorCount: string;
   impostorCountDescription: string;
   categorySelection: string;
+  searchCategories: string;
+  noCategoriesMatch: string;
   showCategory: string;
   hideCategory: string;
   enableHints: string;
@@ -99,6 +101,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Número de impostores",
     impostorCountDescription: "Debe haber al menos 2 jugadores más que impostores",
     categorySelection: "Selecciona una o más categorías",
+    searchCategories: "Buscar categorías...",
+    noCategoriesMatch: "No hay coincidencias",
     showCategory: "Ver categoría",
     hideCategory: "No ver categoría",
     enableHints: "Activar pistas",
@@ -181,6 +185,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Impostor count",
     impostorCountDescription: "Must be at least 2 more players than impostors",
     categorySelection: "Select one or more categories",
+    searchCategories: "Search categories...",
+    noCategoriesMatch: "No matches found",
     showCategory: "Show category",
     hideCategory: "Hide category",
     enableHints: "Enable hints",
@@ -263,6 +269,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Número de impostores",
     impostorCountDescription: "Deve haver pelo menos 2 jogadores a mais que impostores",
     categorySelection: "Selecione uma ou mais categorias",
+    searchCategories: "Buscar categorias...",
+    noCategoriesMatch: "Nenhuma correspondência",
     showCategory: "Ver categoria",
     hideCategory: "Não ver categoria",
     enableHints: "Ativar pistas",
@@ -345,6 +353,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Numero di impostori",
     impostorCountDescription: "Devono esserci almeno 2 giocatori in più degli impostori",
     categorySelection: "Seleziona una o più categorie",
+    searchCategories: "Cerca categorie...",
+    noCategoriesMatch: "Nessuna corrispondenza",
     showCategory: "Mostra categoria",
     hideCategory: "Nascondi categoria",
     enableHints: "Attiva indizi",
@@ -427,6 +437,8 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     impostorCount: "Nombre d'imposteurs",
     impostorCountDescription: "Il doit y avoir au moins 2 joueurs de plus que d'imposteurs",
     categorySelection: "Sélectionnez une ou plusieurs catégories",
+    searchCategories: "Rechercher des catégories...",
+    noCategoriesMatch: "Aucune correspondance",
     showCategory: "Voir la catégorie",
     hideCategory: "Masquer la catégorie",
     enableHints: "Activer les indices",

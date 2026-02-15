@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Lightbulb, LightbulbOff } from "lucide-react";
+import { Eye, EyeOff, Lightbulb, LightbulbOff, Search, X } from "lucide-react";
 import type { Category } from "@/data/categories";
 import { CATEGORIES } from "@/data/categories";
 import { useGame } from "@/context/GameContext";
@@ -26,7 +26,21 @@ export function CategorySelector() {
   } = useGame();
   const t = useTranslations();
   const [tooltipCategory, setTooltipCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const filteredCategories = React.useMemo(() => {
+    if (!searchQuery.trim()) return CATEGORIES;
+    const q = searchQuery.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    return CATEGORIES.filter((cat) => {
+      const displayName = (t.categories[cat.id] ?? cat.name).toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+      const name = cat.name.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+      const id = cat.id.toLowerCase().replace(/-/g, " ");
+      return displayName.includes(q) || name.includes(q) || id.includes(q);
+    });
+  }, [searchQuery, t.categories]);
 
   const handleCategoryClick = useCallback(
     (category: Category) => {
@@ -49,6 +63,10 @@ export function CategorySelector() {
     },
     []
   );
+
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
 
   return (
     <div className="space-y-4">
@@ -90,13 +108,56 @@ export function CategorySelector() {
             <LightbulbOff size={22} />
           )}
         </motion.button>
+        <motion.button
+          type="button"
+          onClick={() => {
+            setSearchOpen((o) => !o);
+            if (searchOpen) setSearchQuery("");
+          }}
+          whileTap={{ scale: 0.95 }}
+          title={t.searchCategories}
+          className={`p-2 rounded-lg transition-colors ${
+            searchOpen
+              ? "text-primary hover:bg-primary/20"
+              : "text-slate-500 hover:bg-slate-500/20 hover:text-slate-400"
+          }`}
+        >
+          <Search size={22} strokeWidth={2} />
+        </motion.button>
       </div>
+      {searchOpen && (
+        <div className="flex items-center gap-2">
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t.searchCategories}
+            className="flex-1 px-4 py-2 rounded-xl bg-surface-light border border-white/10 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setSearchOpen(false);
+            }}
+            className="p-2 rounded-lg text-slate-500 hover:bg-slate-500/20 hover:text-slate-400"
+            title={t.close}
+          >
+            <X size={20} />
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3">
-        {CATEGORIES.map((category) => {
+        {filteredCategories.length === 0 ? (
+          <p className="col-span-2 text-center text-slate-500 py-6 text-sm">
+            {t.noCategoriesMatch}
+          </p>
+        ) : (
+        filteredCategories.map((category) => {
           const isSelected = selectedCategories.some((c) => c.id === category.id);
           const displayName = getCategoryDisplayName(category, t);
           const showTooltipTap = tooltipCategory === category.id;
-
           return (
             <div key={category.id} className="group relative">
               <motion.button
@@ -145,7 +206,8 @@ export function CategorySelector() {
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );
