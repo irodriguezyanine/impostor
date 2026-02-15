@@ -31,12 +31,15 @@ export function CategorySelector() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const removeAccents = (s: string) =>
+    s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
   const filteredCategories = React.useMemo(() => {
     if (!searchQuery.trim()) return CATEGORIES;
-    const q = searchQuery.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    const q = removeAccents(searchQuery.trim().toLowerCase());
     return CATEGORIES.filter((cat) => {
-      const displayName = (t.categories[cat.id] ?? cat.name).toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
-      const name = cat.name.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+      const displayName = removeAccents((t.categories[cat.id] ?? cat.name).toLowerCase());
+      const name = removeAccents(cat.name.toLowerCase());
       const id = cat.id.toLowerCase().replace(/-/g, " ");
       return displayName.includes(q) || name.includes(q) || id.includes(q);
     });
