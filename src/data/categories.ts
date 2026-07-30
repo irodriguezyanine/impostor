@@ -20,16 +20,22 @@ export type Category = {
   wordHints?: Record<string, string | string[]>; // 3 pistas por palabra (para impostores). Si es string, se usa como única pista.
 };
 
-/** Obtiene las 3 pistas para una palabra. Si no hay, devuelve la categoría como fallback. */
+/** Obtiene las 3 pistas para una palabra. Si no hay, usa el nombre de la categoría. */
 export function getHintsForWord(category: Category, word: string): string[] {
+  const normalize = (value: string) => value.trim().toLowerCase();
+  const wordKey = normalize(word);
+
+  const sanitize = (hint: string) =>
+    normalize(hint) === wordKey ? category.name : hint;
+
   const raw = category.wordHints?.[word];
   if (Array.isArray(raw) && raw.length >= 1) {
-    const hints = raw.filter(Boolean).slice(0, 3);
+    const hints = raw.filter(Boolean).map(sanitize).slice(0, 3);
     while (hints.length < 3) hints.push(category.name);
     return hints.slice(0, 3);
   }
   if (typeof raw === "string") {
-    return [raw, category.name, category.name].slice(0, 3);
+    return [sanitize(raw), category.name, category.name].slice(0, 3);
   }
   return [category.name, category.name, category.name];
 }
@@ -1242,7 +1248,7 @@ export const CATEGORIES: Category[] = [
       Gallo: ["Canto", "Amanecer", "Plumas"],
       Pollo: ["Carne", "Granja", "Ave"],
       Pato: ["Agua", "Cuac", "Nadar"],
-      Pavo: ["Thanksgiving", "Grande", "Pavo"],
+      Pavo: ["Thanksgiving", "Grande", "Plumaje"],
       Conejo: ["Orejas", "Saltar", "Mascota"],
       Hámster: ["Mascota", "Rueda", "Pequeño"],
       Ratón: ["Pequeño", "Queso", "Cola"],
@@ -1423,7 +1429,7 @@ export const CATEGORIES: Category[] = [
       "Cancha Dura": ["Cemento", "US Open", "Rápida"],
       Raqueta: ["Instrumento", "Golpear", "Tenis"],
       Cuerdas: ["Raqueta", "Red", "Tensión"],
-      Red: ["Mitad", "Red", "Dividir"],
+      Red: ["Mitad", "Malla", "Dividir"],
       "Juez de Silla": ["Árbitro", "Silla", "Partido"],
       Pasapelotas: ["Niños", "Recoger", "Pelotas"],
       "Ojo de Halcón": ["Tecnología", "Línea", "Revisión"],

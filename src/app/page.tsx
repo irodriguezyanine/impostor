@@ -10,6 +10,8 @@ import { HowToPlay } from "@/components/HowToPlay";
 import { SeoContent } from "@/components/SeoContent";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
+import { validateSetup, type SetupIssue } from "@/lib/game-logic";
+import { getMaxImpostors, getValidPlayers } from "@/lib/players";
 import { Minus, Plus } from "lucide-react";
 
 export default function HomePage() {
@@ -23,11 +25,19 @@ export default function HomePage() {
   } = useGame();
   const t = useTranslations();
 
-  const validPlayers = players.filter((p) => p.trim() !== "");
-  const canStart =
-    validPlayers.length >= 3 &&
-    selectedCategories.length > 0 &&
-    validPlayers.length - impostorCount >= 2;
+  const validPlayers = getValidPlayers(players);
+  const setupIssue = validateSetup({
+    players,
+    selectedCategories,
+    impostorCount,
+  });
+  const canStart = setupIssue === null;
+
+  const issueMessages: Record<SetupIssue, string> = {
+    "not-enough-players": t.needMorePlayers,
+    "no-category": t.needCategory,
+    "too-many-impostors": t.tooManyImpostors,
+  };
 
   const handleStart = () => {
     if (!canStart) return;
@@ -35,7 +45,7 @@ export default function HomePage() {
     router.push("/game");
   };
 
-  const maxImpostors = Math.max(1, validPlayers.length - 2);
+  const maxImpostors = getMaxImpostors(validPlayers.length);
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
@@ -120,7 +130,7 @@ export default function HomePage() {
       </div>
 
       {/* Marca de agua PC: fija a la derecha, se desliza con el scroll */}
-      <div
+      <aside
         className="hidden md:flex fixed right-6 bottom-40 z-20 flex-col items-end gap-1.5 opacity-25 hover:opacity-45 transition-opacity duration-300 select-none"
         aria-label="Créditos y crear categoría"
       >
@@ -140,12 +150,12 @@ export default function HomePage() {
         >
           Crea tu categoria acá
         </a>
-      </div>
+      </aside>
 
       {/* Barra inferior: marca de agua móvil + botón */}
       <div className="flex-shrink-0 py-6 px-5 flex flex-col items-center gap-4 bg-background/90 backdrop-blur-md border-t border-white/15 shadow-[0_-4px_24px_rgba(0,0,0,0.15)] safe-bottom relative z-10 min-h-[120px]">
         {/* Marca de agua móvil: fija abajo, arriba del botón, un poco más grande */}
-        <div
+        <aside
           className="md:hidden flex flex-col items-center gap-1.5 opacity-30 hover:opacity-50 transition-opacity duration-300 select-none"
           aria-label="Créditos y crear categoría"
         >
@@ -165,24 +175,33 @@ export default function HomePage() {
           >
             Crea tu categoria acá
           </a>
-        </div>
-        <div className="w-full max-w-lg flex justify-center">
+        </aside>
+        <div className="w-full max-w-lg flex flex-col items-center gap-2">
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleStart}
             disabled={!canStart}
+            aria-describedby={setupIssue ? "start-game-hint" : undefined}
             className={`
               w-full py-4 rounded-2xl font-bold text-lg
               transition-all duration-200
               ${
                 canStart
                   ? "bg-primary text-gray-900 shadow-glow hover:shadow-glow-lg"
-                  : "bg-surface-light text-slate-500 cursor-not-allowed"
+                  : "bg-surface-light text-slate-400 cursor-not-allowed"
               }
             `}
           >
             {t.startGame}
           </motion.button>
+          <p
+            id="start-game-hint"
+            role="status"
+            aria-live="polite"
+            className="text-sm text-amber-300 text-center min-h-[1.25rem]"
+          >
+            {setupIssue ? issueMessages[setupIssue] : ""}
+          </p>
         </div>
       </div>
     </div>

@@ -2,417 +2,164 @@
 
 import React, {
   createContext,
-  useContext,
-  useReducer,
   useCallback,
+  useContext,
   useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
   type ReactNode,
 } from "react";
 import type { Category } from "@/data/categories";
-import { CATEGORIES, getHintsForWord } from "@/data/categories";
+import { CATEGORIES } from "@/data/categories";
+import {
+  createInitialState,
+  gameReducer,
+  type GameContextState,
+} from "@/context/gameReducer";
+import {
+  clearPersistedGame,
+  loadPersistedGame,
+  savePersistedGame,
+} from "@/lib/game-storage";
 import { LOCALES, type Locale } from "@/lib/i18n";
 
-export type GamePhase = "setup" | "passing" | "revealing" | "playing" | "ended";
-
-export type PlayerRole = "civilian" | "impostor";
-
-export type GameState = {
-  secretWord: string;
-  categoryId: string; // Para poder calcular pistas de fallback
-  /** Pista asignada por impostor (cada uno recibe una distinta de las 3 disponibles) */
-  impostorHints: Record<string, string>;
-  playerRoles: Record<string, PlayerRole>;
-  shuffledOrder: string[];
-  currentPlayerIndex: number;
-  firstPlayer: string;
-  revealedPlayers: Set<string>;
-  flippingToNextIndex: number | null;
-};
-
-type GameContextState = {
-  players: string[];
-  selectedCategories: Category[];
-  impostorCount: number;
-  phase: GamePhase;
-  gameState: GameState | null;
-  locale: Locale;
-  categoryVisibility: boolean;
-  hintsEnabled: boolean; // Si está activo, los impostores ven la categoría como pista
-  repeatCardForPlayer: string | null;
-};
+export type { GamePhase, GameState, PlayerRole } from "@/lib/game-logic";
+export type { Player } from "@/lib/players";
 
 type GameContextValue = GameContextState & {
+  /** `false` hasta que se lee sessionStorage; evita redirigir una partida en curso. */
+  isHydrated: boolean;
   addPlayer: (name?: string) => void;
-  removePlayer: (index: number) => void;
-  updatePlayer: (index: number, name: string) => void;
+  removePlayer: (id: string) => void;
+  updatePlayer: (id: string, name: string) => void;
   toggleCategory: (category: Category) => void;
   setImpostorCount: (count: number) => void;
   setLocale: (locale: Locale) => void;
   toggleCategoryVisibility: () => void;
   toggleHints: () => void;
   startGame: () => void;
-  nextPlayer: () => void;
-  revealRole: (playerName: string) => void;
+  revealRole: (playerId: string) => void;
   hideRole: () => void;
   completeFlipToNext: () => void;
   revealAndFinish: () => void;
   finishGame: () => void;
   restartCardView: () => void;
   restartGame: () => void;
-  showCardForPlayer: (playerName: string) => void;
+  showCardForPlayer: (playerId: string) => void;
   clearRepeatCard: () => void;
 };
 
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
-function getRandomElement<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-const STORAGE_KEY = "imposter-locale";
+const LOCALE_STORAGE_KEY = "imposter-locale";
 
 function getStoredLocale(): Locale | null {
-  if (typeof window === "undefined") return null;
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    if (typeof window === "undefined") return null;
+    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
     if (stored && (LOCALES as readonly string[]).includes(stored)) {
       return stored as Locale;
     }
   } catch {
-    /* ignore */
+    /* localStorage bloqueado: se usa el idioma por defecto */
   }
   return null;
 }
 
-const initialState: GameContextState = {
-  players: ["", "", ""],
-  selectedCategories: [],
-  impostorCount: 1,
-  phase: "setup",
-  gameState: null,
-  locale: "es",
-  categoryVisibility: true,
-  hintsEnabled: true, // Pistas activas por defecto para que los impostores vean ayuda
-  repeatCardForPlayer: null,
-};
-
-type Action =
-  | { type: "ADD_PLAYER"; name?: string }
-  | { type: "REMOVE_PLAYER"; index: number }
-  | { type: "UPDATE_PLAYER"; index: number; name: string }
-  | { type: "TOGGLE_CATEGORY"; category: Category }
-  | { type: "SET_IMPOSTOR_COUNT"; count: number }
-  | { type: "SET_LOCALE"; locale: Locale }
-  | { type: "TOGGLE_CATEGORY_VISIBILITY" }
-  | { type: "TOGGLE_HINTS" }
-  | { type: "START_GAME" }
-  | { type: "NEXT_PLAYER" }
-  | { type: "REVEAL_ROLE"; playerName: string }
-  | { type: "HIDE_ROLE" }
-  | { type: "REVEAL_AND_FINISH" }
-  | { type: "FINISH_GAME" }
-  | { type: "RESTART_CARD_VIEW" }
-  | { type: "RESTART_GAME" }
-  | { type: "COMPLETE_FLIP_TO_NEXT" }
-  | { type: "SHOW_CARD_FOR_PLAYER"; playerName: string }
-  | { type: "CLEAR_REPEAT_CARD" };
-
-function gameReducer(state: GameContextState, action: Action): GameContextState {
-  switch (action.type) {
-    case "ADD_PLAYER":
-      if (state.players.length >= 20) return state;
-      return { ...state, players: [...state.players, ""] };
-
-    case "REMOVE_PLAYER": {
-      if (state.players.length <= 2) return state;
-      const newPlayers = state.players.filter((_, i) => i !== action.index);
-      const newMaxImpostors = Math.max(1, newPlayers.length - 2);
-      const newImpostorCount = Math.min(
-        state.impostorCount,
-        newMaxImpostors
-      );
-      return {
-        ...state,
-        players: newPlayers,
-        impostorCount: newImpostorCount,
-      };
-    }
-
-    case "UPDATE_PLAYER":
-      return {
-        ...state,
-        players: state.players.map((p, i) =>
-          i === action.index ? action.name : p
-        ),
-      };
-
-    case "TOGGLE_CATEGORY": {
-      const exists = state.selectedCategories.some((c) => c.id === action.category.id);
-      return {
-        ...state,
-        selectedCategories: exists
-          ? state.selectedCategories.filter((c) => c.id !== action.category.id)
-          : [...state.selectedCategories, action.category],
-      };
-    }
-
-    case "SET_IMPOSTOR_COUNT":
-      return { ...state, impostorCount: action.count };
-
-    case "SET_LOCALE":
-      return { ...state, locale: action.locale };
-
-    case "TOGGLE_CATEGORY_VISIBILITY":
-      return { ...state, categoryVisibility: !state.categoryVisibility };
-
-    case "TOGGLE_HINTS":
-      return { ...state, hintsEnabled: !state.hintsEnabled };
-
-    case "START_GAME": {
-      const validPlayers = state.players.filter((p) => p.trim() !== "");
-      if (validPlayers.length < 3 || state.selectedCategories.length === 0) return state;
-      if (validPlayers.length - state.impostorCount < 2) return state;
-
-      const category = getRandomElement(state.selectedCategories);
-      const cat = CATEGORIES.find((c) => c.id === category.id) ?? category;
-      const words = cat.words;
-      if (words.length === 0) return state;
-
-      const secretWord = getRandomElement(words);
-      const hints = shuffleArray(getHintsForWord(cat, secretWord));
-      const shuffledOrder = shuffleArray(validPlayers);
-
-      const impostorIndices = new Set<number>();
-      while (impostorIndices.size < state.impostorCount) {
-        impostorIndices.add(
-          Math.floor(Math.random() * shuffledOrder.length)
-        );
-      }
-
-      const playerRoles: Record<string, PlayerRole> = {};
-      const impostorHints: Record<string, string> = {};
-      const impostorNames = shuffledOrder
-        .map((name, idx) => (impostorIndices.has(idx) ? name : null))
-        .filter(Boolean) as string[];
-      impostorNames.forEach((name, i) => {
-        playerRoles[name] = "impostor";
-        impostorHints[name] = hints[i % hints.length];
-      });
-      shuffledOrder.forEach((name) => {
-        if (playerRoles[name] !== "impostor") playerRoles[name] = "civilian";
-      });
-
-      const firstPlayer = getRandomElement(shuffledOrder);
-
-      return {
-        ...state,
-        phase: "passing",
-        gameState: {
-          secretWord,
-          categoryId: cat.id,
-          impostorHints,
-          playerRoles,
-          shuffledOrder,
-          currentPlayerIndex: 0,
-          firstPlayer,
-          revealedPlayers: new Set(),
-          flippingToNextIndex: null,
-        },
-      };
-    }
-
-    case "NEXT_PLAYER": {
-      if (!state.gameState) return state;
-      const { shuffledOrder, currentPlayerIndex } = state.gameState;
-      const nextIndex = currentPlayerIndex + 1;
-      if (nextIndex >= shuffledOrder.length) {
-        return { ...state, phase: "playing" };
-      }
-      return {
-        ...state,
-        phase: "passing",
-        gameState: {
-          ...state.gameState,
-          currentPlayerIndex: nextIndex,
-        },
-      };
-    }
-
-    case "REVEAL_ROLE": {
-      if (!state.gameState) return state;
-      const revealed = new Set(state.gameState.revealedPlayers);
-      revealed.add(action.playerName);
-      return {
-        ...state,
-        phase: "revealing",
-        gameState: {
-          ...state.gameState,
-          revealedPlayers: revealed,
-        },
-      };
-    }
-
-    case "HIDE_ROLE": {
-      if (!state.gameState) return state;
-      const { shuffledOrder, currentPlayerIndex } = state.gameState;
-      const nextIndex = currentPlayerIndex + 1;
-      if (nextIndex >= shuffledOrder.length) {
-        return { ...state, phase: "playing" };
-      }
-      // No avanzar aún: primero flip, luego COMPLETE_FLIP_TO_NEXT evita que se vea el rol del siguiente
-      return {
-        ...state,
-        phase: "passing",
-        gameState: {
-          ...state.gameState,
-          flippingToNextIndex: nextIndex,
-        },
-      };
-    }
-
-    case "COMPLETE_FLIP_TO_NEXT": {
-      if (!state.gameState || state.gameState.flippingToNextIndex === null)
-        return state;
-      const nextIndex = state.gameState.flippingToNextIndex;
-      return {
-        ...state,
-        gameState: {
-          ...state.gameState,
-          currentPlayerIndex: nextIndex,
-          flippingToNextIndex: null,
-        },
-      };
-    }
-
-    case "REVEAL_AND_FINISH":
-      return { ...state, phase: "ended" };
-
-    case "SHOW_CARD_FOR_PLAYER":
-      return { ...state, repeatCardForPlayer: action.playerName };
-
-    case "CLEAR_REPEAT_CARD":
-      return { ...state, repeatCardForPlayer: null };
-
-    case "FINISH_GAME":
-      // Volver a setup manteniendo jugadores, categorías e impostores para jugar de nuevo rápido
-      return {
-        ...state,
-        phase: "setup",
-        gameState: null,
-      };
-
-    case "RESTART_CARD_VIEW": {
-      if (!state.gameState) return state;
-      return {
-        ...state,
-        phase: "passing",
-        gameState: {
-          ...state.gameState,
-          currentPlayerIndex: 0,
-          revealedPlayers: new Set(),
-          flippingToNextIndex: null,
-        },
-      };
-    }
-
-    case "RESTART_GAME": {
-      const validPlayers = state.players.filter((p) => p.trim() !== "");
-      if (validPlayers.length < 3 || state.selectedCategories.length === 0)
-        return state;
-      if (validPlayers.length - state.impostorCount < 2) return state;
-
-      const category = getRandomElement(state.selectedCategories);
-      const cat = CATEGORIES.find((c) => c.id === category.id) ?? category;
-      const words = cat.words;
-      if (words.length === 0) return state;
-
-      const secretWord = getRandomElement(words);
-      const hints = shuffleArray(getHintsForWord(cat, secretWord));
-      const shuffledOrder = shuffleArray(validPlayers);
-
-      // Excluir impostores anteriores para que no les toque de nuevo
-      const previousImpostors = state.gameState
-        ? (Object.entries(state.gameState.playerRoles)
-            .filter(([, r]) => r === "impostor")
-            .map(([n]) => n) as string[])
-        : [];
-      const candidatePool = validPlayers.filter(
-        (p) => !previousImpostors.includes(p)
-      );
-      const pool =
-        candidatePool.length >= state.impostorCount
-          ? candidatePool
-          : validPlayers;
-
-      const impostorNames: string[] = [];
-      const shuffledPool = shuffleArray([...pool]);
-      for (let i = 0; impostorNames.length < state.impostorCount && i < shuffledPool.length; i++) {
-        impostorNames.push(shuffledPool[i]);
-      }
-
-      const playerRoles: Record<string, PlayerRole> = {};
-      const impostorHints: Record<string, string> = {};
-      impostorNames.forEach((name, i) => {
-        playerRoles[name] = "impostor";
-        impostorHints[name] = hints[i % hints.length];
-      });
-      shuffledOrder.forEach((name) => {
-        if (playerRoles[name] !== "impostor") playerRoles[name] = "civilian";
-      });
-
-      const firstPlayer = getRandomElement(shuffledOrder);
-
-      return {
-        ...state,
-        phase: "passing",
-        gameState: {
-          secretWord,
-          categoryId: cat.id,
-          impostorHints,
-          playerRoles,
-          shuffledOrder,
-          currentPlayerIndex: 0,
-          firstPlayer,
-          revealedPlayers: new Set(),
-          flippingToNextIndex: null,
-        },
-      };
-    }
-
-    default:
-      return state;
+function storeLocale(locale: Locale): void {
+  try {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  } catch {
+    /* ignore */
   }
+}
+
+function findCategories(ids: readonly string[]): Category[] {
+  return ids
+    .map((id) => CATEGORIES.find((category) => category.id === id))
+    .filter((category): category is Category => Boolean(category));
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
+  const [state, dispatch] = useReducer(gameReducer, undefined, createInitialState);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const hasHydrated = useRef(false);
 
+  // Rehidratación tras montar (no en render) para no romper el HTML del servidor.
   useEffect(() => {
-    const stored = getStoredLocale();
-    if (stored && stored !== state.locale) {
-      dispatch({ type: "SET_LOCALE", locale: stored });
+    if (hasHydrated.current) return;
+    hasHydrated.current = true;
+
+    const snapshot = loadPersistedGame();
+    if (snapshot) {
+      dispatch({
+        type: "RESTORE",
+        snapshot: {
+          players: snapshot.players,
+          nextPlayerId: snapshot.nextPlayerId,
+          selectedCategories: findCategories(snapshot.selectedCategoryIds),
+          impostorCount: snapshot.impostorCount,
+          phase: snapshot.phase,
+          gameState: snapshot.gameState,
+          categoryVisibility: snapshot.categoryVisibility,
+          hintsEnabled: snapshot.hintsEnabled,
+        },
+      });
     }
-  }, [state.locale]);
+
+    const storedLocale = getStoredLocale();
+    if (storedLocale) {
+      dispatch({ type: "SET_LOCALE", locale: storedLocale });
+    }
+
+    setIsHydrated(true);
+  }, []);
+
+  // Una partida en curso sobrevive a recargas accidentales.
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (state.phase === "setup" || !state.gameState) {
+      clearPersistedGame();
+      return;
+    }
+
+    savePersistedGame({
+      players: state.players,
+      nextPlayerId: state.nextPlayerId,
+      selectedCategoryIds: state.selectedCategories.map(
+        (category) => category.id
+      ),
+      impostorCount: state.impostorCount,
+      phase: state.phase,
+      categoryVisibility: state.categoryVisibility,
+      hintsEnabled: state.hintsEnabled,
+      gameState: state.gameState,
+    });
+  }, [
+    isHydrated,
+    state.phase,
+    state.gameState,
+    state.players,
+    state.nextPlayerId,
+    state.selectedCategories,
+    state.impostorCount,
+    state.categoryVisibility,
+    state.hintsEnabled,
+  ]);
 
   const addPlayer = useCallback((name?: string) => {
     dispatch({ type: "ADD_PLAYER", name });
   }, []);
 
-  const removePlayer = useCallback((index: number) => {
-    dispatch({ type: "REMOVE_PLAYER", index });
+  const removePlayer = useCallback((id: string) => {
+    dispatch({ type: "REMOVE_PLAYER", id });
   }, []);
 
-  const updatePlayer = useCallback((index: number, name: string) => {
-    dispatch({ type: "UPDATE_PLAYER", index, name });
+  const updatePlayer = useCallback((id: string, name: string) => {
+    dispatch({ type: "UPDATE_PLAYER", id, name });
   }, []);
 
   const toggleCategory = useCallback((category: Category) => {
@@ -425,11 +172,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const setLocale = useCallback((locale: Locale) => {
     dispatch({ type: "SET_LOCALE", locale });
-    try {
-      localStorage.setItem(STORAGE_KEY, locale);
-    } catch {
-      /* ignore */
-    }
+    storeLocale(locale);
   }, []);
 
   const toggleCategoryVisibility = useCallback(() => {
@@ -444,12 +187,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "START_GAME" });
   }, []);
 
-  const nextPlayer = useCallback(() => {
-    dispatch({ type: "NEXT_PLAYER" });
-  }, []);
-
-  const revealRole = useCallback((playerName: string) => {
-    dispatch({ type: "REVEAL_ROLE", playerName });
+  const revealRole = useCallback((playerId: string) => {
+    dispatch({ type: "REVEAL_ROLE", playerId });
   }, []);
 
   const hideRole = useCallback(() => {
@@ -476,43 +215,65 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "RESTART_GAME" });
   }, []);
 
-  const showCardForPlayer = useCallback((playerName: string) => {
-    dispatch({ type: "SHOW_CARD_FOR_PLAYER", playerName });
+  const showCardForPlayer = useCallback((playerId: string) => {
+    dispatch({ type: "SHOW_CARD_FOR_PLAYER", playerId });
   }, []);
 
   const clearRepeatCard = useCallback(() => {
     dispatch({ type: "CLEAR_REPEAT_CARD" });
   }, []);
 
-  const value: GameContextValue = {
-    ...state,
-    addPlayer,
-    removePlayer,
-    updatePlayer,
-    toggleCategory,
-    setImpostorCount,
-    setLocale,
-    toggleCategoryVisibility,
-    toggleHints,
-    startGame,
-    nextPlayer,
-    revealRole,
-    hideRole,
-    completeFlipToNext,
-    revealAndFinish,
-    finishGame,
-    restartCardView,
-    restartGame,
-    showCardForPlayer,
-    clearRepeatCard,
-  };
-
-  return (
-    <GameContext.Provider value={value}>{children}</GameContext.Provider>
+  const value = useMemo<GameContextValue>(
+    () => ({
+      ...state,
+      isHydrated,
+      addPlayer,
+      removePlayer,
+      updatePlayer,
+      toggleCategory,
+      setImpostorCount,
+      setLocale,
+      toggleCategoryVisibility,
+      toggleHints,
+      startGame,
+      revealRole,
+      hideRole,
+      completeFlipToNext,
+      revealAndFinish,
+      finishGame,
+      restartCardView,
+      restartGame,
+      showCardForPlayer,
+      clearRepeatCard,
+    }),
+    [
+      state,
+      isHydrated,
+      addPlayer,
+      removePlayer,
+      updatePlayer,
+      toggleCategory,
+      setImpostorCount,
+      setLocale,
+      toggleCategoryVisibility,
+      toggleHints,
+      startGame,
+      revealRole,
+      hideRole,
+      completeFlipToNext,
+      revealAndFinish,
+      finishGame,
+      restartCardView,
+      restartGame,
+      showCardForPlayer,
+      clearRepeatCard,
+    ]
   );
+
+  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }
 
-export function useGame() {
+export function useGame(): GameContextValue {
   const ctx = useContext(GameContext);
   if (!ctx) throw new Error("useGame must be used within GameProvider");
   return ctx;

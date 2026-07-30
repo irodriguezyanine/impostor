@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, X } from "lucide-react";
 import { useTranslations } from "@/hooks/useTranslations";
+
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 function formatContent(text: string) {
   return text.split("\n\n").map((paragraph, i) => {
@@ -27,15 +30,53 @@ function formatContent(text: string) {
 export function HowToPlay() {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (!isOpen) return;
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusTimer = window.setTimeout(() => {
+      closeRef.current?.focus();
+    }, 0);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setIsOpen(false);
+        return;
+      }
+
+      if (e.key !== "Tab" || !dialogRef.current) return;
+
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = "";
+      window.clearTimeout(focusTimer);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused.current?.focus?.();
     };
   }, [isOpen]);
 
@@ -45,10 +86,10 @@ export function HowToPlay() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-haspopup="dialog"
-        aria-label={t.howToPlayTitle}
-        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-light border border-white/10 hover:border-white/20 text-slate-300 hover:text-slate-100 transition-all font-medium shadow-sm"
+        aria-expanded={isOpen}
+        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-surface-light border border-white/10 hover:border-white/20 text-slate-200 hover:text-slate-100 transition-all font-medium shadow-sm min-h-[44px]"
       >
-        <BookOpen size={20} />
+        <BookOpen size={20} aria-hidden="true" />
         {t.howToPlayTitle}
       </button>
 
@@ -66,6 +107,7 @@ export function HowToPlay() {
               aria-hidden="true"
             />
             <motion.div
+              ref={dialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="how-to-play-title"
@@ -81,20 +123,21 @@ export function HowToPlay() {
                   id="how-to-play-title"
                   className="text-lg font-semibold text-slate-100 flex items-center gap-2"
                 >
-                  <BookOpen size={22} className="text-primary" />
+                  <BookOpen size={22} className="text-primary" aria-hidden="true" />
                   {t.howToPlayTitle}
                 </h2>
                 <button
+                  ref={closeRef}
                   type="button"
                   onClick={() => setIsOpen(false)}
                   aria-label={t.close}
-                  className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-slate-100 transition-colors"
+                  className="p-2 rounded-lg hover:bg-white/10 text-slate-300 hover:text-slate-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
-                  <X size={24} />
+                  <X size={24} aria-hidden="true" />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto px-6 py-5">
-                <div className="text-slate-400 text-[15px] leading-relaxed">
+                <div className="text-slate-300 text-[15px] leading-relaxed">
                   {formatContent(t.howToPlayContent)}
                 </div>
               </div>

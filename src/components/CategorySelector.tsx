@@ -82,16 +82,18 @@ export function CategorySelector() {
           onClick={toggleCategoryVisibility}
           whileTap={{ scale: 0.95 }}
           title={categoryVisibility ? t.hideCategory : t.showCategory}
-          className={`p-2 rounded-lg transition-colors ${
+          aria-label={categoryVisibility ? t.hideCategory : t.showCategory}
+          aria-pressed={categoryVisibility}
+          className={`p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
             categoryVisibility
               ? "text-primary hover:bg-primary/20"
-              : "text-slate-500 hover:bg-slate-500/20 hover:text-slate-400"
+              : "text-slate-400 hover:bg-slate-500/20 hover:text-slate-200"
           }`}
         >
           {categoryVisibility ? (
-            <Eye size={22} strokeWidth={2} />
+            <Eye size={22} strokeWidth={2} aria-hidden="true" />
           ) : (
-            <EyeOff size={22} />
+            <EyeOff size={22} aria-hidden="true" />
           )}
         </motion.button>
         <motion.button
@@ -99,16 +101,18 @@ export function CategorySelector() {
           onClick={toggleHints}
           whileTap={{ scale: 0.95 }}
           title={hintsEnabled ? t.disableHints : t.enableHints}
-          className={`p-2 rounded-lg transition-colors ${
+          aria-label={hintsEnabled ? t.disableHints : t.enableHints}
+          aria-pressed={hintsEnabled}
+          className={`p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
             hintsEnabled
               ? "text-primary hover:bg-primary/20"
-              : "text-slate-500 hover:bg-slate-500/20 hover:text-slate-400"
+              : "text-slate-400 hover:bg-slate-500/20 hover:text-slate-200"
           }`}
         >
           {hintsEnabled ? (
-            <Lightbulb size={22} strokeWidth={2} />
+            <Lightbulb size={22} strokeWidth={2} aria-hidden="true" />
           ) : (
-            <LightbulbOff size={22} />
+            <LightbulbOff size={22} aria-hidden="true" />
           )}
         </motion.button>
         <motion.button
@@ -119,13 +123,15 @@ export function CategorySelector() {
           }}
           whileTap={{ scale: 0.95 }}
           title={t.searchCategories}
-          className={`p-2 rounded-lg transition-colors ${
+          aria-label={t.searchCategories}
+          aria-expanded={searchOpen}
+          className={`p-2 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
             searchOpen
               ? "text-primary hover:bg-primary/20"
-              : "text-slate-500 hover:bg-slate-500/20 hover:text-slate-400"
+              : "text-slate-400 hover:bg-slate-500/20 hover:text-slate-200"
           }`}
         >
-          <Search size={22} strokeWidth={2} />
+          <Search size={22} strokeWidth={2} aria-hidden="true" />
         </motion.button>
       </div>
       {searchOpen && (
@@ -136,7 +142,8 @@ export function CategorySelector() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.searchCategories}
-            className="flex-1 px-4 py-2 rounded-xl bg-surface-light border border-white/10 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 text-sm"
+            className="flex-1 px-4 py-2 rounded-xl bg-surface-light border border-white/10 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 text-sm min-h-[44px]"
+            aria-label={t.searchCategories}
           />
           <button
             type="button"
@@ -187,11 +194,13 @@ export function CategorySelector() {
                     className="w-8 h-8 object-contain flex-shrink-0 rounded"
                   />
                 ) : (
-                  <span className="text-2xl flex-shrink-0">{category.icon}</span>
+                  <span className="text-2xl flex-shrink-0" aria-hidden="true">
+                    {category.icon}
+                  </span>
                 )}
                 <span
                   className={`text-sm font-medium truncate ${
-                    isSelected ? "text-gray-900" : "text-slate-200"
+                    isSelected ? "text-gray-900" : "text-slate-100"
                   }`}
                 >
                   {displayName}
