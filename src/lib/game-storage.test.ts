@@ -8,6 +8,10 @@ import {
   savePersistedGame,
 } from "@/lib/game-storage";
 import { dealRoles } from "@/lib/game-logic";
+import {
+  createImpostorHistory,
+  recordImpostors,
+} from "@/lib/impostor-rotation";
 import { TEST_CATEGORY, makePlayers, seededRandom } from "@/lib/test-fixtures";
 
 function buildSnapshot() {
@@ -27,6 +31,7 @@ function buildSnapshot() {
     hintsEnabled: true,
     nextPlayerId: 4,
     gameState,
+    impostorHistory: recordImpostors(createImpostorHistory(), ["p2"]),
   };
 }
 
@@ -57,11 +62,24 @@ describe("persistencia de la partida", () => {
     expect(restored.gameState!.revealedPlayers.has("p1")).toBe(true);
   });
 
+  it("conserva el turno de impostores para que siga rotando tras recargar", () => {
+    const snapshot = buildSnapshot();
+    const restored = decodePersistedGame(encodePersistedGame(snapshot))!;
+    expect(restored.impostorHistory).toEqual(snapshot.impostorHistory);
+  });
+
   it("rechaza datos corruptos en lugar de romper la app", () => {
     expect(decodePersistedGame("no-es-json")).toBeNull();
     expect(decodePersistedGame("{}")).toBeNull();
     expect(decodePersistedGame(JSON.stringify({ version: 1 }))).toBeNull();
     expect(decodePersistedGame(null)).toBeNull();
+  });
+
+  it("repone un turno vacío si el historial guardado está corrupto", () => {
+    const raw = JSON.parse(encodePersistedGame(buildSnapshot()));
+    raw.impostorHistory = { counts: "roto", lastRound: null, round: -3 };
+    const restored = decodePersistedGame(JSON.stringify(raw))!;
+    expect(restored.impostorHistory).toEqual(createImpostorHistory());
   });
 
   it("descarta instantáneas de una versión anterior", () => {

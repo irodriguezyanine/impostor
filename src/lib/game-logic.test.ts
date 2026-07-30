@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { dealRoles, validateSetup } from "@/lib/game-logic";
+import { dealRoles, getImpostorIds, validateSetup } from "@/lib/game-logic";
+import {
+  createImpostorHistory,
+  recordImpostors,
+} from "@/lib/impostor-rotation";
 import {
   OTHER_CATEGORY,
   TEST_CATEGORY,
@@ -157,25 +161,51 @@ describe("dealRoles", () => {
 
   it("evita repetir a los impostores de la ronda anterior", () => {
     const players = makePlayers("Ana", "Bea", "Caro", "Dani", "Eva");
+    const history = recordImpostors(createImpostorHistory(), ["p1"]);
     for (let seed = 1; seed <= 25; seed++) {
       const state = dealRoles({
         players,
         selectedCategories: categories,
         impostorCount: 1,
-        previousImpostorIds: ["p1"],
+        history,
         random: seededRandom(seed),
       })!;
       expect(state.playerRoles.p1).toBe("civilian");
     }
   });
 
+  it("prioriza a quien menos veces ha sido impostor", () => {
+    const players = makePlayers("Ana", "Bea", "Caro", "Dani", "Eva");
+    let history = createImpostorHistory();
+    history = recordImpostors(history, ["p1"]);
+    history = recordImpostors(history, ["p2"]);
+    history = recordImpostors(history, ["p3"]);
+
+    for (let seed = 1; seed <= 25; seed++) {
+      const state = dealRoles({
+        players,
+        selectedCategories: categories,
+        impostorCount: 1,
+        history,
+        random: seededRandom(seed),
+      })!;
+      expect(getImpostorIds(state)).toHaveLength(1);
+      expect(["p4", "p5"]).toContain(getImpostorIds(state)[0]);
+    }
+  });
+
   it("permite repetir impostores si no hay candidatos suficientes", () => {
     const players = makePlayers("Ana", "Bea", "Caro");
+    const history = recordImpostors(createImpostorHistory(), [
+      "p1",
+      "p2",
+      "p3",
+    ]);
     const state = dealRoles({
       players,
       selectedCategories: categories,
       impostorCount: 1,
-      previousImpostorIds: ["p1", "p2", "p3"],
+      history,
       random: seededRandom(9),
     })!;
     expect(countImpostors(state.playerRoles)).toBe(1);

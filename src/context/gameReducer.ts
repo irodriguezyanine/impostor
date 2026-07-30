@@ -6,6 +6,11 @@ import {
   type GameState,
 } from "@/lib/game-logic";
 import {
+  createImpostorHistory,
+  recordImpostors,
+  type ImpostorHistory,
+} from "@/lib/impostor-rotation";
+import {
   MAX_PLAYERS,
   clampImpostorCount,
   createPlayer,
@@ -26,6 +31,8 @@ export type GameContextState = {
   categoryVisibility: boolean;
   hintsEnabled: boolean;
   repeatCardForPlayerId: string | null;
+  /** Turnos de impostor ya repartidos, para que el rol rote de forma equitativa. */
+  impostorHistory: ImpostorHistory;
 };
 
 export type RestoreSnapshot = {
@@ -37,6 +44,7 @@ export type RestoreSnapshot = {
   gameState: GameState | null;
   categoryVisibility: boolean;
   hintsEnabled: boolean;
+  impostorHistory: ImpostorHistory;
 };
 
 export type Action =
@@ -72,6 +80,7 @@ export function createInitialState(): GameContextState {
     categoryVisibility: true,
     hintsEnabled: true,
     repeatCardForPlayerId: null,
+    impostorHistory: createImpostorHistory(),
   };
 }
 
@@ -84,15 +93,12 @@ function withClampedImpostors(state: GameContextState): GameContextState {
     : { ...state, impostorCount };
 }
 
-function startRound(
-  state: GameContextState,
-  previousImpostorIds: readonly string[]
-): GameContextState {
+function startRound(state: GameContextState): GameContextState {
   const gameState = dealRoles({
     players: state.players,
     selectedCategories: state.selectedCategories,
     impostorCount: state.impostorCount,
-    previousImpostorIds,
+    history: state.impostorHistory,
   });
   if (!gameState) return state;
 
@@ -100,6 +106,10 @@ function startRound(
     ...state,
     phase: "passing",
     gameState,
+    impostorHistory: recordImpostors(
+      state.impostorHistory,
+      getImpostorIds(gameState)
+    ),
     repeatCardForPlayerId: null,
   };
 }
@@ -167,13 +177,8 @@ export function gameReducer(
       return { ...state, hintsEnabled: !state.hintsEnabled };
 
     case "START_GAME":
-      return startRound(state, []);
-
     case "RESTART_GAME":
-      return startRound(
-        state,
-        state.gameState ? getImpostorIds(state.gameState) : []
-      );
+      return startRound(state);
 
     case "REVEAL_ROLE": {
       if (!state.gameState) return state;

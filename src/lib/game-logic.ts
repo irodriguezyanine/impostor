@@ -1,6 +1,11 @@
 import type { Category } from "@/data/categories";
 import { getHintsForWord } from "@/data/categories";
 import {
+  createImpostorHistory,
+  selectImpostors,
+  type ImpostorHistory,
+} from "@/lib/impostor-rotation";
+import {
   MIN_CIVILIANS,
   MIN_PLAYERS,
   getValidPlayers,
@@ -54,8 +59,8 @@ export function validateSetup({
 }
 
 export type DealRolesInput = SetupInput & {
-  /** Impostores de la ronda anterior, para no repetirlos si se puede evitar. */
-  previousImpostorIds?: readonly string[];
+  /** Reparto previo de impostores, para turnarse de forma equitativa. */
+  history?: ImpostorHistory;
   random?: RandomFn;
 };
 
@@ -67,7 +72,7 @@ export function dealRoles({
   players,
   selectedCategories,
   impostorCount,
-  previousImpostorIds = [],
+  history = createImpostorHistory(),
   random = Math.random,
 }: DealRolesInput): GameState | null {
   if (validateSetup({ players, selectedCategories, impostorCount }) !== null) {
@@ -84,12 +89,12 @@ export function dealRoles({
   const hints = shuffleArray(getHintsForWord(category, secretWord), random);
   const shuffledOrder = shuffleArray(validPlayers, random);
 
-  const freshCandidates = validPlayers.filter(
-    (player) => !previousImpostorIds.includes(player.id)
-  );
-  const pool =
-    freshCandidates.length >= impostorCount ? freshCandidates : validPlayers;
-  const impostors = shuffleArray(pool, random).slice(0, impostorCount);
+  const impostors = selectImpostors({
+    players: validPlayers,
+    impostorCount,
+    history,
+    random,
+  });
 
   const playerRoles: Record<string, PlayerRole> = {};
   for (const player of validPlayers) {

@@ -105,6 +105,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           gameState: snapshot.gameState,
           categoryVisibility: snapshot.categoryVisibility,
           hintsEnabled: snapshot.hintsEnabled,
+          impostorHistory: snapshot.impostorHistory,
         },
       });
     }
@@ -137,6 +138,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       categoryVisibility: state.categoryVisibility,
       hintsEnabled: state.hintsEnabled,
       gameState: state.gameState,
+      impostorHistory: state.impostorHistory,
     });
   }, [
     isHydrated,
@@ -148,6 +150,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     state.impostorCount,
     state.categoryVisibility,
     state.hintsEnabled,
+    state.impostorHistory,
   ]);
 
   const addPlayer = useCallback((name?: string) => {

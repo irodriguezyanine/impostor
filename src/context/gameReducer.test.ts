@@ -199,6 +199,43 @@ describe("repetir y terminar", () => {
     }
   });
 
+  // Jugando de verdad: 5 amigos que repiten partida una y otra vez.
+  it("reparte el rol de impostor por turnos a lo largo de la noche", () => {
+    const names = ["Ana", "Bea", "Caro", "Dani", "Eva"];
+    let state = startedState(names);
+    const rounds = [impostorIdsOf(state)];
+
+    for (let i = 0; i < 19; i++) {
+      state = gameReducer(state, { type: "RESTART_GAME" });
+      rounds.push(impostorIdsOf(state));
+    }
+
+    // Primera vuelta: cinco personas distintas, nadie repite.
+    expect(new Set(rounds.slice(0, 5).flat()).size).toBe(5);
+
+    // Nunca dos rondas seguidas la misma persona.
+    for (let i = 1; i < rounds.length; i++) {
+      expect(rounds[i].filter((id) => rounds[i - 1].includes(id))).toEqual([]);
+    }
+
+    // Al final del reparto todos han sido impostor casi las mismas veces.
+    const times = state.players.map(
+      (player) => state.impostorHistory.counts[player.id] ?? 0
+    );
+    expect(Math.max(...times) - Math.min(...times)).toBeLessThanOrEqual(1);
+  });
+
+  it("sigue rotando aunque se vuelva al menú entre partidas", () => {
+    let state = startedState(["Ana", "Bea", "Caro", "Dani"]);
+    const first = impostorIdsOf(state);
+
+    state = gameReducer(state, { type: "FINISH_GAME" });
+    state = gameReducer(state, { type: "START_GAME" });
+
+    expect(impostorIdsOf(state)).not.toEqual(first);
+    expect(state.impostorHistory.round).toBe(2);
+  });
+
   it("vuelve a mostrar las cartas desde el principio sin revelados", () => {
     const state = startedState(["Ana", "Bea", "Caro"]);
     const first = state.gameState!.shuffledOrder[0];
@@ -280,11 +317,13 @@ describe("restauración de una partida guardada", () => {
         gameState: saved.gameState,
         categoryVisibility: saved.categoryVisibility,
         hintsEnabled: saved.hintsEnabled,
+        impostorHistory: saved.impostorHistory,
       },
     });
 
     expect(restored.phase).toBe("passing");
     expect(restored.gameState!.secretWord).toBe(saved.gameState!.secretWord);
     expect(restored.players).toEqual(saved.players);
+    expect(restored.impostorHistory).toEqual(saved.impostorHistory);
   });
 });

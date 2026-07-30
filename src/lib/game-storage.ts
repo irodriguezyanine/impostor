@@ -1,7 +1,11 @@
 import type { GamePhase, GameState, PlayerRole } from "@/lib/game-logic";
+import {
+  createImpostorHistory,
+  type ImpostorHistory,
+} from "@/lib/impostor-rotation";
 import type { Player } from "@/lib/players";
 
-export const PERSISTED_GAME_VERSION = 1;
+export const PERSISTED_GAME_VERSION = 2;
 export const GAME_STORAGE_KEY = "impostor:game";
 
 /**
@@ -17,6 +21,7 @@ export type GameSnapshot = {
   categoryVisibility: boolean;
   hintsEnabled: boolean;
   gameState: GameState | null;
+  impostorHistory: ImpostorHistory;
 };
 
 const PHASES: GamePhase[] = [
@@ -77,6 +82,28 @@ function parseGameState(value: unknown): GameState | null {
   };
 }
 
+/** Registro `playerId -> número` saneado; descarta claves o valores corruptos. */
+function parseCounters(value: unknown): Record<string, number> {
+  if (!isRecord(value)) return {};
+  const result: Record<string, number> = {};
+  for (const [id, count] of Object.entries(value)) {
+    if (typeof count === "number" && Number.isFinite(count) && count >= 0) {
+      result[id] = count;
+    }
+  }
+  return result;
+}
+
+function parseImpostorHistory(value: unknown): ImpostorHistory {
+  if (!isRecord(value)) return createImpostorHistory();
+  const round = value.round;
+  return {
+    counts: parseCounters(value.counts),
+    lastRound: parseCounters(value.lastRound),
+    round: typeof round === "number" && round >= 0 ? round : 0,
+  };
+}
+
 export function encodePersistedGame(snapshot: GameSnapshot): string {
   return JSON.stringify({
     version: PERSISTED_GAME_VERSION,
@@ -87,6 +114,7 @@ export function encodePersistedGame(snapshot: GameSnapshot): string {
     phase: snapshot.phase,
     categoryVisibility: snapshot.categoryVisibility,
     hintsEnabled: snapshot.hintsEnabled,
+    impostorHistory: snapshot.impostorHistory,
     gameState: snapshot.gameState
       ? {
           ...snapshot.gameState,
@@ -137,6 +165,7 @@ export function decodePersistedGame(
     phase: phase as GamePhase,
     categoryVisibility: parsed.categoryVisibility !== false,
     hintsEnabled: parsed.hintsEnabled !== false,
+    impostorHistory: parseImpostorHistory(parsed.impostorHistory),
     gameState: parsed.gameState === null ? null : parseGameState(parsed.gameState),
   };
 }

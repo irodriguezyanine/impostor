@@ -14,6 +14,7 @@ export default defineConfig({
       include: [
         "src/lib/game-logic.ts",
         "src/lib/game-storage.ts",
+        "src/lib/impostor-rotation.ts",
         "src/lib/players.ts",
         "src/lib/shuffle.ts",
         "src/context/gameReducer.ts",
