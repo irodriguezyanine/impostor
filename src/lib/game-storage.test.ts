@@ -12,6 +12,8 @@ import {
   createImpostorHistory,
   recordImpostors,
 } from "@/lib/impostor-rotation";
+import { DEFAULT_SETTINGS } from "@/lib/game-settings";
+import { createNightBoard } from "@/lib/scoring";
 import { TEST_CATEGORY, makePlayers, seededRandom } from "@/lib/test-fixtures";
 
 function buildSnapshot() {
@@ -32,6 +34,12 @@ function buildSnapshot() {
     nextPlayerId: 4,
     gameState,
     impostorHistory: recordImpostors(createImpostorHistory(), ["p2"]),
+    settings: DEFAULT_SETTINGS,
+    nightBoard: createNightBoard(players),
+    ballots: [],
+    voteAccusedId: null,
+    lastWordPlayerId: null,
+    civiliansWon: null,
   };
 }
 

@@ -5,11 +5,23 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameCard } from "@/components/GameCard";
 import { ExitConfirmModal } from "@/components/ExitConfirmModal";
+import { DiscussionPanel } from "@/components/DiscussionPanel";
+import { ClueRoundPanel } from "@/components/ClueRoundPanel";
+import { VotingPanel } from "@/components/VotingPanel";
+import { LastWordPanel } from "@/components/LastWordPanel";
+import { RoundResultPanel } from "@/components/RoundResultPanel";
+import { NightScoreboard } from "@/components/NightScoreboard";
+import { ImpostorHistoryBadge } from "@/components/ImpostorHistoryBadge";
+import { ReportWordButton } from "@/components/ReportWordButton";
+import { SurveyPrompt } from "@/components/SurveyPrompt";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
-import { Play, ChevronDown, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { CATEGORIES, getHintsForWord } from "@/data/categories";
 import type { Player } from "@/lib/players";
+import { historyView } from "@/lib/round-memory";
+import { feedbackPass, feedbackReveal, feedbackVote, feedbackWin } from "@/lib/feedback";
+import { leaderboard } from "@/lib/scoring";
 
 export default function GamePage() {
   const router = useRouter();
@@ -21,6 +33,14 @@ export default function GamePage() {
     hintsEnabled,
     repeatCardForPlayerId,
     isHydrated,
+    settings,
+    ballots,
+    voteAccusedId,
+    lastWordPlayerId,
+    civiliansWon,
+    nightBoard,
+    impostorHistory,
+    players,
     finishGame,
     revealAndFinish,
     restartGame,
@@ -29,11 +49,20 @@ export default function GamePage() {
     completeFlipToNext,
     showCardForPlayer,
     clearRepeatCard,
+    nextSpeaker,
+    beginVoting,
+    skipToReveal,
+    setWrittenClue,
+    finishClueRound,
+    castVote,
+    resolveVotes,
+    finishLastWord,
   } = useGame();
   const t = useTranslations();
   const [showPlayerPicker, setShowPlayerPicker] = useState(false);
   const [repeatCardRevealed, setRepeatCardRevealed] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showSurvey, setShowSurvey] = useState(false);
   const playerPickerRef = useRef<HTMLDivElement>(null);
   const historyGuardInstalled = useRef(false);
 
@@ -48,6 +77,7 @@ export default function GamePage() {
 
   const handleConfirmExit = useCallback(() => {
     setShowExitModal(false);
+    setShowSurvey(true);
     confirmExit();
   }, [confirmExit]);
 
@@ -65,7 +95,6 @@ export default function GamePage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showPlayerPicker]);
 
-  // Espera a hidratar: si no, una partida recuperada se redirigiría al inicio.
   useEffect(() => {
     if (!isHydrated) return;
     if (phase === "setup" || !gameState) {
@@ -73,7 +102,6 @@ export default function GamePage() {
     }
   }, [isHydrated, phase, gameState, router]);
 
-  // Una sola entrada de historial por partida; no se re-apila en cada revelado.
   useEffect(() => {
     if (!isHydrated || !gameState || historyGuardInstalled.current) return;
     historyGuardInstalled.current = true;
@@ -92,6 +120,12 @@ export default function GamePage() {
       historyGuardInstalled.current = false;
     };
   }, [isHydrated, gameState]);
+
+  useEffect(() => {
+    if (phase === "result") {
+      feedbackWin(settings.soundEnabled, settings.hapticsEnabled);
+    }
+  }, [phase, settings.soundEnabled, settings.hapticsEnabled]);
 
   const getHintForPlayer = useCallback(
     (playerId: string): string | null => {
@@ -136,6 +170,9 @@ export default function GamePage() {
     firstPlayerId,
     revealedPlayers,
     flippingToNextIndex,
+    speakOrder,
+    speakIndex,
+    discussEndsAt,
   } = gameState;
 
   const currentPlayer: Player | undefined = shuffledOrder[currentPlayerIndex];
@@ -152,7 +189,6 @@ export default function GamePage() {
     ? gameState.playerRoles[currentPlayer.id]
     : "civilian";
 
-  // Durante el flip mostramos el frente (para no revelar el rol del siguiente).
   const isRevealed =
     flippingToNextIndex !== null
       ? false
@@ -172,6 +208,7 @@ export default function GamePage() {
   );
 
   const handleReveal = () => {
+    feedbackReveal(settings.soundEnabled, settings.hapticsEnabled);
     if (repeatPlayer) {
       setRepeatCardRevealed(true);
     } else if (currentPlayer) {
@@ -180,6 +217,7 @@ export default function GamePage() {
   };
 
   const handleHide = () => {
+    feedbackPass(settings.soundEnabled, settings.hapticsEnabled);
     if (repeatPlayer) {
       clearRepeatCard();
       setRepeatCardRevealed(false);
@@ -188,15 +226,51 @@ export default function GamePage() {
     }
   };
 
+  const nameOf = (id: string | null) =>
+    id
+      ? shuffledOrder.find((p) => p.id === id)?.name ??
+        players.find((p) => p.id === id)?.name ??
+        null
+      : null;
+
+  const scoreRows = leaderboard(nightBoard).map((row) => ({
+    ...row,
+    name: nameOf(row.playerId) ?? row.playerId,
+  }));
+
+  const hist = historyView(
+    impostorHistory,
+    shuffledOrder.map((p) => p.id)
+  ).map((h) => ({
+    ...h,
+    name: nameOf(h.playerId) ?? h.playerId,
+  }));
+
   const liveStatus = repeatPlayer
     ? `${t.passTo} ${repeatPlayer.name}`
-    : phase === "ended"
+    : phase === "ended" || phase === "result"
       ? `${t.theSecretWordWas} ${gameState.secretWord}`
-      : phase === "playing"
+      : phase === "discussing"
         ? `${t.firstPlayer} ${firstPlayerName}`
         : nextPlayer
           ? `${t.passTo} ${nextPlayer.name}`
           : "";
+
+  const cardFor = (player: Player, revealed: boolean) => (
+    <GameCard
+      playerName={player.name}
+      isRevealed={revealed}
+      role={gameState.playerRoles[player.id] ?? "civilian"}
+      secretWord={gameState.secretWord}
+      closeWord={gameState.closeWords?.[player.id] ?? null}
+      categoryNames={categoryNames}
+      showCategories={categoryVisibility}
+      hintsEnabled={hintsEnabled}
+      secretWordHint={getHintForPlayer(player.id)}
+      onReveal={handleReveal}
+      onHide={handleHide}
+    />
+  );
 
   return (
     <>
@@ -208,6 +282,7 @@ export default function GamePage() {
         onConfirm={handleConfirmExit}
         onCancel={() => setShowExitModal(false)}
       />
+      <SurveyPrompt open={showSurvey} onClose={() => setShowSurvey(false)} />
       <div className="min-h-screen bg-background pb-8 safe-bottom relative">
         <div className="sr-only" aria-live="polite" aria-atomic="true">
           {liveStatus}
@@ -217,7 +292,8 @@ export default function GamePage() {
           className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(163,230,53,0.06)_0%,transparent_50%)]"
           aria-hidden
         />
-        <div className="relative z-10 max-w-lg mx-auto px-4 pt-6 safe-top">
+        <div className="relative z-10 max-w-lg mx-auto px-4 pt-6 safe-top space-y-4">
+          <ImpostorHistoryBadge history={hist} />
           <AnimatePresence mode="wait">
             {repeatPlayer ? (
               <motion.div
@@ -225,7 +301,7 @@ export default function GamePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="pt-8 relative min-h-[452px]"
+                className="pt-4 relative min-h-[452px]"
               >
                 <button
                   type="button"
@@ -237,18 +313,7 @@ export default function GamePage() {
                 >
                   {t.finishShort}
                 </button>
-                <GameCard
-                  playerName={repeatPlayer.name}
-                  isRevealed={repeatCardRevealed}
-                  role={gameState.playerRoles[repeatPlayer.id] ?? "civilian"}
-                  secretWord={gameState.secretWord}
-                  categoryNames={categoryNames}
-                  showCategories={categoryVisibility}
-                  hintsEnabled={hintsEnabled}
-                  secretWordHint={getHintForPlayer(repeatPlayer.id)}
-                  onReveal={handleReveal}
-                  onHide={handleHide}
-                />
+                {cardFor(repeatPlayer, repeatCardRevealed)}
               </motion.div>
             ) : phase === "passing" || phase === "revealing" ? (
               <motion.div
@@ -256,20 +321,32 @@ export default function GamePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="pt-8 relative min-h-[452px]"
+                className="pt-4 relative min-h-[452px]"
               >
                 <button
                   type="button"
                   onClick={handleRequestExit}
-                  className="absolute top-0 right-0 text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors py-2 px-3 -mr-1 min-h-[44px]"
+                  className="absolute top-0 right-0 text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors py-2 px-3 -mr-1 min-h-[44px] z-10"
                 >
                   {t.finishShort}
                 </button>
+                {settings.antiPeekCover &&
+                phase === "passing" &&
+                !isRevealed ? (
+                  <p className="text-center text-xs text-slate-400 mb-2">
+                    Pasa el teléfono sin mirar · tapa la pantalla
+                  </p>
+                ) : null}
                 <GameCard
                   playerName={nextPlayer?.name ?? ""}
                   isRevealed={isRevealed}
                   role={currentRole}
                   secretWord={gameState.secretWord}
+                  closeWord={
+                    currentPlayer
+                      ? gameState.closeWords?.[currentPlayer.id] ?? null
+                      : null
+                  }
                   categoryNames={categoryNames}
                   showCategories={categoryVisibility}
                   hintsEnabled={hintsEnabled}
@@ -290,14 +367,129 @@ export default function GamePage() {
                       : undefined
                   }
                 />
+                <div className="mt-3 flex justify-center">
+                  <ReportWordButton
+                    word={gameState.secretWord}
+                    categoryId={gameState.categoryId}
+                  />
+                </div>
+              </motion.div>
+            ) : phase === "clueRound" ? (
+              <motion.div key="clues" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <ClueRoundPanel
+                  players={shuffledOrder}
+                  clues={gameState.writtenClues}
+                  onSetClue={setWrittenClue}
+                  onFinish={finishClueRound}
+                />
+              </motion.div>
+            ) : phase === "discussing" ? (
+              <motion.div
+                key="discuss"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <DiscussionPanel
+                  speakers={speakOrder}
+                  speakIndex={speakIndex}
+                  endsAt={discussEndsAt}
+                  turnSeconds={settings.turnSeconds}
+                  enableTurnOrder={settings.enableTurnOrder}
+                  onNextSpeaker={nextSpeaker}
+                  onStartVoting={() => {
+                    feedbackVote(settings.soundEnabled, settings.hapticsEnabled);
+                    beginVoting();
+                  }}
+                  onSkipReveal={skipToReveal}
+                />
+                <div className="relative" ref={playerPickerRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPlayerPicker(!showPlayerPicker)}
+                    className="w-full py-3 rounded-xl bg-surface-light text-slate-100 border border-white/10 min-h-[44px] flex items-center justify-center gap-2"
+                  >
+                    {t.repeatCardView}
+                    <ChevronDown size={18} aria-hidden />
+                  </button>
+                  {showPlayerPicker && (
+                    <div
+                      role="listbox"
+                      className="absolute top-full left-0 right-0 mt-2 rounded-xl bg-surface border border-white/10 z-20 overflow-hidden"
+                    >
+                      {shuffledOrder.map((player) => (
+                        <button
+                          key={player.id}
+                          type="button"
+                          role="option"
+                          aria-selected={false}
+                          onClick={() => {
+                            showCardForPlayer(player.id);
+                            setShowPlayerPicker(false);
+                            setRepeatCardRevealed(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-slate-100 hover:bg-white/10 min-h-[44px]"
+                        >
+                          {player.name}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setShowPlayerPicker(false)}
+                        className="w-full px-4 py-3 text-slate-300 flex items-center justify-center gap-2"
+                      >
+                        <X size={16} aria-hidden />
+                        {t.close}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ) : phase === "voting" ? (
+              <motion.div key="vote" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <VotingPanel
+                  players={shuffledOrder}
+                  ballots={ballots}
+                  onCast={castVote}
+                  onResolve={() => {
+                    feedbackVote(settings.soundEnabled, settings.hapticsEnabled);
+                    resolveVotes();
+                  }}
+                />
+              </motion.div>
+            ) : phase === "lastWord" ? (
+              <motion.div key="last" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <LastWordPanel
+                  playerName={nameOf(lastWordPlayerId) ?? "Acusado"}
+                  onDone={finishLastWord}
+                />
+              </motion.div>
+            ) : phase === "result" ? (
+              <motion.div
+                key="result"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-4"
+              >
+                <RoundResultPanel
+                  civiliansWon={civiliansWon}
+                  accusedName={nameOf(voteAccusedId)}
+                  impostorNames={impostors.map((p) => p.name)}
+                  secretWord={gameState.secretWord}
+                  onRevealDetails={revealAndFinish}
+                  onNextRound={restartGame}
+                  onHome={handleRequestExit}
+                />
+                {settings.enableScoring ? (
+                  <NightScoreboard rows={scoreRows} />
+                ) : null}
               </motion.div>
             ) : phase === "ended" ? (
               <motion.div
                 key="ended"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-6 pt-8"
+                className="space-y-6 pt-4"
               >
                 <div className="bg-surface rounded-2xl shadow-card border border-white/10 p-8 space-y-6">
                   <h2 className="text-xl font-bold text-slate-100 text-center">
@@ -321,124 +513,29 @@ export default function GamePage() {
                       ))}
                     </div>
                   </div>
+                  <p className="text-center text-xs text-slate-400">
+                    Semilla: {gameState.roundSeed}
+                  </p>
                 </div>
-
+                {settings.enableScoring ? (
+                  <NightScoreboard rows={scoreRows} />
+                ) : null}
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={restartGame}
+                  className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold min-h-[52px]"
+                >
+                  {t.repeatGame}
+                </motion.button>
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={handleRequestExit}
-                  className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 min-h-[52px]"
+                  className="w-full py-4 rounded-2xl bg-surface-light text-slate-100 font-bold border border-white/10 min-h-[52px]"
                 >
                   {t.backToHome}
                 </motion.button>
               </motion.div>
-            ) : (
-              <motion.div
-                key="playing"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-6 pt-8"
-              >
-                <div className="bg-surface rounded-2xl shadow-card border border-white/10 p-8 text-center">
-                  <h2 className="text-lg font-semibold text-slate-200 mb-2">
-                    {t.gameInProgress}
-                  </h2>
-                  <p className="text-sm text-slate-300 mb-4">{t.firstPlayer}</p>
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
-                      <Play size={28} className="text-gray-900" aria-hidden />
-                    </div>
-                    <span className="text-2xl font-bold text-slate-100">
-                      {firstPlayerName}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    onClick={revealAndFinish}
-                    className="w-full py-4 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 text-center min-h-[52px]"
-                  >
-                    {t.revealWordAndImpostor}
-                  </motion.button>
-                  <div className="relative" ref={playerPickerRef}>
-                    <motion.button
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowPlayerPicker(!showPlayerPicker)}
-                      aria-expanded={showPlayerPicker}
-                      aria-haspopup="listbox"
-                      className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-100 font-bold flex items-center justify-center gap-2 text-center border border-white/10 min-h-[52px]"
-                    >
-                      {t.repeatCardView}
-                      <ChevronDown
-                        size={20}
-                        aria-hidden
-                        className={`transition-transform ${
-                          showPlayerPicker ? "rotate-180" : ""
-                        }`}
-                      />
-                    </motion.button>
-                    {showPlayerPicker && (
-                      <motion.div
-                        role="listbox"
-                        aria-label={t.whoForgotCard}
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        className="absolute top-full left-0 right-0 mt-2 rounded-xl bg-surface border border-white/10 shadow-card overflow-hidden z-20"
-                      >
-                        <div className="p-3 border-b border-white/10">
-                          <p className="text-sm font-medium text-slate-100">
-                            {t.whoForgotCard}
-                          </p>
-                        </div>
-                        <div className="max-h-48 overflow-y-auto">
-                          {shuffledOrder.map((player) => (
-                            <button
-                              key={player.id}
-                              type="button"
-                              role="option"
-                              aria-selected={false}
-                              onClick={() => {
-                                showCardForPlayer(player.id);
-                                setShowPlayerPicker(false);
-                                setRepeatCardRevealed(false);
-                              }}
-                              className="w-full px-4 py-3 text-left text-slate-100 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0 min-h-[44px]"
-                            >
-                              {player.name}
-                            </button>
-                          ))}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setShowPlayerPicker(false)}
-                          className="w-full px-4 py-3 text-slate-300 hover:bg-white/5 text-sm flex items-center justify-center gap-2 min-h-[44px]"
-                        >
-                          <X size={16} aria-hidden />
-                          {t.close}
-                        </button>
-                      </motion.div>
-                    )}
-                  </div>
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    onClick={restartGame}
-                    className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-100 font-bold flex items-center justify-center gap-2 text-center border border-white/10 min-h-[52px]"
-                  >
-                    {t.repeatGame}
-                  </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleRequestExit}
-                    className="w-full py-4 rounded-2xl bg-surface-light hover:bg-slate-500/50 text-slate-100 font-bold flex items-center justify-center gap-2 text-center border border-white/10 min-h-[52px]"
-                  >
-                    {t.finishGameGoHome}
-                  </motion.button>
-                </div>
-              </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { PlayerInputList } from "@/components/PlayerInputList";
@@ -8,10 +8,23 @@ import { CategorySelector } from "@/components/CategorySelector";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { HowToPlay } from "@/components/HowToPlay";
 import { SeoContent } from "@/components/SeoContent";
+import { GameSettingsPanel } from "@/components/GameSettingsPanel";
+import { SavedTablesPanel } from "@/components/SavedTablesPanel";
+import { CustomCategoryEditor } from "@/components/CustomCategoryEditor";
+import { OnboardingTutorial } from "@/components/OnboardingTutorial";
+import { ChangelogModal } from "@/components/ChangelogModal";
+import { ImpostorHistoryBadge } from "@/components/ImpostorHistoryBadge";
 import { useGame } from "@/context/GameContext";
 import { useTranslations } from "@/hooks/useTranslations";
 import { validateSetup, type SetupIssue } from "@/lib/game-logic";
+import {
+  estimateDurationMinutes,
+  isUnbalancedImpostorSetup,
+  suggestImpostorCount,
+} from "@/lib/game-settings";
 import { getMaxImpostors, getValidPlayers } from "@/lib/players";
+import { historyView } from "@/lib/round-memory";
+import { createLocalRoomCode, tipJarUrl, track } from "@/lib/product-stubs";
 import { Minus, Plus } from "lucide-react";
 
 export default function HomePage() {
@@ -22,8 +35,18 @@ export default function HomePage() {
     impostorCount,
     setImpostorCount,
     startGame,
+    settings,
+    patchSettings,
+    setPlayersFromNames,
+    setCategories,
+    showOnboarding,
+    dismissOnboarding,
+    impostorHistory,
+    allCategories,
+    refreshCustomCategories,
   } = useGame();
   const t = useTranslations();
+  const [roomMsg, setRoomMsg] = useState<string | null>(null);
 
   const validPlayers = getValidPlayers(players);
   const setupIssue = validateSetup({
@@ -39,8 +62,31 @@ export default function HomePage() {
     "too-many-impostors": t.tooManyImpostors,
   };
 
+  const unbalanced = isUnbalancedImpostorSetup(
+    validPlayers.length,
+    impostorCount
+  );
+  const suggested = suggestImpostorCount(validPlayers.length);
+  const duration = estimateDurationMinutes(
+    validPlayers.length || 3,
+    settings.discussSeconds
+  );
+
+  const hist = useMemo(
+    () =>
+      historyView(
+        impostorHistory,
+        validPlayers.map((p) => p.id)
+      ).map((h) => ({
+        ...h,
+        name: validPlayers.find((p) => p.id === h.playerId)?.name ?? h.playerId,
+      })),
+    [impostorHistory, validPlayers]
+  );
+
   const handleStart = () => {
     if (!canStart) return;
+    track({ name: "setup_start" });
     startGame();
     router.push("/game");
   };
@@ -49,14 +95,15 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Fondo con gradiente y patrones sutiles */}
+      <OnboardingTutorial open={showOnboarding} onClose={dismissOnboarding} />
       <div className="absolute inset-0 bg-gradient-mesh" aria-hidden />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(163,230,53,0.08)_0%,transparent_50%)]" aria-hidden />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(30,41,59,0.6)_0%,transparent_50%)]" aria-hidden />
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(163,230,53,0.08)_0%,transparent_50%)]"
+        aria-hidden
+      />
 
       <div className="flex-1 overflow-y-auto min-h-0 relative z-0">
         <div className="max-w-lg mx-auto px-5 pt-20 pb-8 safe-top">
-          {/* Header con más espacio */}
           <header className="mb-10 mt-6">
             <div className="flex items-center justify-between gap-4 mb-2">
               <h1 className="text-3xl md:text-4xl font-black tracking-tight title-gradient drop-shadow-sm">
@@ -64,9 +111,13 @@ export default function HomePage() {
               </h1>
               <LanguageSelector />
             </div>
-            <p className="text-slate-400 text-sm mt-1">
-              {t.appTagline}
+            <p className="text-slate-400 text-sm mt-1">{t.appTagline}</p>
+            <p className="text-slate-500 text-xs mt-2">
+              Estimado: ~{duration} min · Modo {settings.mode}
             </p>
+            <div className="mt-3">
+              <ChangelogModal />
+            </div>
           </header>
 
           <motion.main
@@ -75,17 +126,52 @@ export default function HomePage() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="space-y-6"
           >
-            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm transition-shadow duration-200 hover:shadow-card-hover">
+            {hist.some((h) => h.times > 0) ? (
+              <ImpostorHistoryBadge history={hist} />
+            ) : null}
+
+            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm">
               <PlayerInputList />
             </div>
 
-            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm transition-shadow duration-200 hover:shadow-card-hover">
-              <h2 className="text-lg font-semibold text-slate-100 mb-4">
+            <SavedTablesPanel
+              players={players}
+              categoryIds={selectedCategories.map((c) => c.id)}
+              impostorCount={impostorCount}
+              onImportNames={setPlayersFromNames}
+              onLoad={(table) => {
+                setPlayersFromNames(table.players.map((p) => p.name));
+                setImpostorCount(table.impostorCount);
+                const cats = allCategories.filter((c) =>
+                  table.categoryIds.includes(c.id)
+                );
+                setCategories(cats);
+              }}
+            />
+
+            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm">
+              <h2 className="text-lg font-semibold text-slate-100 mb-2">
                 {t.impostorCount}
               </h2>
-              <p className="text-sm text-slate-400 mb-4">
+              <p className="text-sm text-slate-400 mb-2">
                 {t.impostorCountDescription}
               </p>
+              <p className="text-xs text-primary mb-4">
+                Sugerido para {validPlayers.length || "?"} jugadores:{" "}
+                <button
+                  type="button"
+                  className="underline font-semibold"
+                  onClick={() => setImpostorCount(suggested)}
+                >
+                  {suggested}
+                </button>
+              </p>
+              {unbalanced ? (
+                <p className="text-sm text-amber-300 mb-3" role="status">
+                  Con 4 jugadores y 2 impostores el reparto se vuelve
+                  predecible. Mejor 1 impostor.
+                </p>
+              ) : null}
               <div className="flex items-center justify-between gap-4">
                 <button
                   type="button"
@@ -93,7 +179,7 @@ export default function HomePage() {
                     setImpostorCount(Math.max(1, impostorCount - 1))
                   }
                   disabled={impostorCount <= 1}
-                  className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200"
+                  className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200 min-h-[44px]"
                 >
                   <Minus size={24} />
                 </button>
@@ -108,28 +194,55 @@ export default function HomePage() {
                     )
                   }
                   disabled={impostorCount >= maxImpostors}
-                  className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200"
+                  className="p-3 rounded-xl bg-surface-light hover:bg-slate-500/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-200 min-h-[44px]"
                 >
                   <Plus size={24} />
                 </button>
               </div>
             </div>
 
-            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm transition-shadow duration-200 hover:shadow-card-hover">
+            <GameSettingsPanel settings={settings} onChange={patchSettings} />
+
+            <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm">
               <CategorySelector />
             </div>
 
-            {/* Botón ¿Cómo jugar? debajo de categorías */}
-            <HowToPlay />
+            <CustomCategoryEditor onCategoriesChange={refreshCustomCategories} />
 
-            {/* Contenido SEO: invisible (sr-only), visible para crawlers */}
+            <div className="bg-surface/95 rounded-2xl border border-white/10 p-4 space-y-2">
+              <p className="text-sm text-slate-300 font-medium">
+                Mesa online (próximamente)
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const room = createLocalRoomCode();
+                  setRoomMsg(`${room.code}: ${room.message}`);
+                }}
+                className="w-full py-3 rounded-xl bg-surface-light text-slate-100 border border-white/10 min-h-[44px]"
+              >
+                Generar código local
+              </button>
+              {roomMsg ? (
+                <p className="text-xs text-slate-400">{roomMsg}</p>
+              ) : null}
+              <a
+                href={tipJarUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-xs text-slate-500 hover:text-slate-300"
+              >
+                Invítanos un café / tip jar
+              </a>
+            </div>
+
+            <HowToPlay />
             <SeoContent />
           </motion.main>
           <div className="h-28" />
         </div>
       </div>
 
-      {/* Marca de agua PC: fija a la derecha, se desliza con el scroll */}
       <aside
         className="hidden md:flex fixed right-6 bottom-40 z-20 flex-col items-end gap-1.5 opacity-25 hover:opacity-45 transition-opacity duration-300 select-none"
         aria-label="Créditos y crear categoría"
@@ -138,7 +251,7 @@ export default function HomePage() {
           href="https://www.imaginatuweb.cl"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-slate-500 hover:text-slate-400 transition-colors leading-tight"
+          className="text-xs text-slate-500 hover:text-slate-400"
         >
           Página creada por Imaginatuweb.cl
         </a>
@@ -146,36 +259,13 @@ export default function HomePage() {
           href="https://wa.me/56976488856?text=Quiero%20crear%20mi%20categoria%20por%20%2420.000"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-slate-500 hover:text-slate-400 transition-colors leading-tight"
+          className="text-xs text-slate-500 hover:text-slate-400"
         >
           Crea tu categoria acá
         </a>
       </aside>
 
-      {/* Barra inferior: marca de agua móvil + botón */}
-      <div className="flex-shrink-0 py-6 px-5 flex flex-col items-center gap-4 bg-background/90 backdrop-blur-md border-t border-white/15 shadow-[0_-4px_24px_rgba(0,0,0,0.15)] safe-bottom relative z-10 min-h-[120px]">
-        {/* Marca de agua móvil: fija abajo, arriba del botón, un poco más grande */}
-        <aside
-          className="md:hidden flex flex-col items-center gap-1.5 opacity-30 hover:opacity-50 transition-opacity duration-300 select-none"
-          aria-label="Créditos y crear categoría"
-        >
-          <a
-            href="https://www.imaginatuweb.cl"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-slate-500 hover:text-slate-400 transition-colors leading-tight"
-          >
-            Página creada por Imaginatuweb.cl
-          </a>
-          <a
-            href="https://wa.me/56976488856?text=Quiero%20crear%20mi%20categoria%20por%20%2420.000"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-slate-500 hover:text-slate-400 transition-colors leading-tight"
-          >
-            Crea tu categoria acá
-          </a>
-        </aside>
+      <div className="flex-shrink-0 py-6 px-5 flex flex-col items-center gap-4 bg-background/90 backdrop-blur-md border-t border-white/15 safe-bottom relative z-10 min-h-[120px]">
         <div className="w-full max-w-lg flex flex-col items-center gap-2">
           <motion.button
             whileTap={{ scale: 0.98 }}

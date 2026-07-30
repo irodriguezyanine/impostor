@@ -2,9 +2,14 @@ import type { Category } from "@/data/categories";
 import {
   dealRoles,
   getImpostorIds,
+  phaseAfterReveal,
   type GamePhase,
   type GameState,
 } from "@/lib/game-logic";
+import {
+  DEFAULT_SETTINGS,
+  type GameSettings,
+} from "@/lib/game-settings";
 import {
   createImpostorHistory,
   recordImpostors,
@@ -18,10 +23,21 @@ import {
   type Player,
 } from "@/lib/players";
 import type { Locale } from "@/lib/i18n";
+import { rememberRound } from "@/lib/round-memory";
+import {
+  applyRoundOutcome,
+  createNightBoard,
+  type NightBoard,
+} from "@/lib/scoring";
+import {
+  detectorIdsFromBallots,
+  isCorrectAccusation,
+  resolveVotes,
+  type Ballot,
+} from "@/lib/voting";
 
 export type GameContextState = {
   players: Player[];
-  /** Contador incremental: ids deterministas y estables entre servidor y cliente. */
   nextPlayerId: number;
   selectedCategories: Category[];
   impostorCount: number;
@@ -31,8 +47,14 @@ export type GameContextState = {
   categoryVisibility: boolean;
   hintsEnabled: boolean;
   repeatCardForPlayerId: string | null;
-  /** Turnos de impostor ya repartidos, para que el rol rote de forma equitativa. */
   impostorHistory: ImpostorHistory;
+  settings: GameSettings;
+  nightBoard: NightBoard;
+  ballots: Ballot[];
+  voteAccusedId: string | null;
+  lastWordPlayerId: string | null;
+  civiliansWon: boolean | null;
+  showOnboarding: boolean;
 };
 
 export type RestoreSnapshot = {
@@ -45,32 +67,56 @@ export type RestoreSnapshot = {
   categoryVisibility: boolean;
   hintsEnabled: boolean;
   impostorHistory: ImpostorHistory;
+  settings: GameSettings;
+  nightBoard: NightBoard;
+  ballots: Ballot[];
+  voteAccusedId: string | null;
+  lastWordPlayerId: string | null;
+  civiliansWon: boolean | null;
 };
 
 export type Action =
   | { type: "ADD_PLAYER"; name?: string }
   | { type: "REMOVE_PLAYER"; id: string }
   | { type: "UPDATE_PLAYER"; id: string; name: string }
+  | { type: "SET_PLAYERS_FROM_NAMES"; names: string[] }
   | { type: "TOGGLE_CATEGORY"; category: Category }
+  | { type: "SET_CATEGORIES"; categories: Category[] }
   | { type: "SET_IMPOSTOR_COUNT"; count: number }
   | { type: "SET_LOCALE"; locale: Locale }
   | { type: "TOGGLE_CATEGORY_VISIBILITY" }
   | { type: "TOGGLE_HINTS" }
+  | { type: "PATCH_SETTINGS"; patch: Partial<GameSettings> }
   | { type: "START_GAME" }
   | { type: "REVEAL_ROLE"; playerId: string }
   | { type: "HIDE_ROLE" }
   | { type: "COMPLETE_FLIP_TO_NEXT" }
+  | { type: "BEGIN_DISCUSSION" }
+  | { type: "NEXT_SPEAKER" }
+  | { type: "SET_WRITTEN_CLUE"; playerId: string; clue: string }
+  | { type: "FINISH_CLUE_ROUND" }
+  | { type: "BEGIN_VOTING" }
+  | { type: "CAST_VOTE"; voterId: string; accusedId: string }
+  | { type: "RESOLVE_VOTES" }
+  | { type: "FINISH_LAST_WORD" }
+  | { type: "SKIP_TO_REVEAL" }
   | { type: "REVEAL_AND_FINISH" }
   | { type: "FINISH_GAME" }
   | { type: "RESTART_CARD_VIEW" }
   | { type: "RESTART_GAME" }
   | { type: "SHOW_CARD_FOR_PLAYER"; playerId: string }
   | { type: "CLEAR_REPEAT_CARD" }
+  | { type: "DISMISS_ONBOARDING" }
   | { type: "RESTORE"; snapshot: RestoreSnapshot };
 
 export function createInitialState(): GameContextState {
+  const players = [
+    createPlayer("p1"),
+    createPlayer("p2"),
+    createPlayer("p3"),
+  ];
   return {
-    players: [createPlayer("p1"), createPlayer("p2"), createPlayer("p3")],
+    players,
     nextPlayerId: 4,
     selectedCategories: [],
     impostorCount: 1,
@@ -81,10 +127,16 @@ export function createInitialState(): GameContextState {
     hintsEnabled: true,
     repeatCardForPlayerId: null,
     impostorHistory: createImpostorHistory(),
+    settings: DEFAULT_SETTINGS,
+    nightBoard: createNightBoard(players),
+    ballots: [],
+    voteAccusedId: null,
+    lastWordPlayerId: null,
+    civiliansWon: null,
+    showOnboarding: true,
   };
 }
 
-/** Mantiene el número de impostores dentro del rango que permiten los nombres actuales. */
 function withClampedImpostors(state: GameContextState): GameContextState {
   const validCount = getValidPlayers(state.players).length;
   const impostorCount = clampImpostorCount(state.impostorCount, validCount);
@@ -94,24 +146,66 @@ function withClampedImpostors(state: GameContextState): GameContextState {
 }
 
 function startRound(state: GameContextState): GameContextState {
+  const effectiveHints =
+    state.settings.difficulty === "hard" ? false : state.hintsEnabled;
+
   const gameState = dealRoles({
     players: state.players,
     selectedCategories: state.selectedCategories,
     impostorCount: state.impostorCount,
     history: state.impostorHistory,
+    settings: state.settings,
   });
   if (!gameState) return state;
+
+  if (typeof window !== "undefined") {
+    rememberRound(gameState.secretWord, gameState.categoryId);
+  }
+
+  const discussEndsAt =
+    state.settings.discussSeconds > 0
+      ? Date.now() + state.settings.discussSeconds * 1000
+      : null;
 
   return {
     ...state,
     phase: "passing",
-    gameState,
+    gameState: {
+      ...gameState,
+      discussEndsAt,
+    },
     impostorHistory: recordImpostors(
       state.impostorHistory,
       getImpostorIds(gameState)
     ),
+    hintsEnabled: effectiveHints || state.hintsEnabled,
     repeatCardForPlayerId: null,
+    ballots: [],
+    voteAccusedId: null,
+    lastWordPlayerId: null,
+    civiliansWon: null,
   };
+}
+
+function recordScore(
+  state: GameContextState,
+  civiliansWon: boolean,
+  accusedId: string | null
+): NightBoard {
+  if (!state.gameState || !state.settings.enableScoring) {
+    return state.nightBoard;
+  }
+  const impostorIds = getImpostorIds(state.gameState);
+  const correctlyAccusedIds =
+    accusedId && isCorrectAccusation(accusedId, impostorIds)
+      ? [accusedId]
+      : [];
+  return applyRoundOutcome(state.nightBoard, getValidPlayers(state.players), {
+    civiliansWon,
+    impostorIds,
+    correctlyAccusedIds,
+    detectorIds: detectorIdsFromBallots(state.ballots, impostorIds),
+  });
 }
 
 export function gameReducer(
@@ -121,13 +215,15 @@ export function gameReducer(
   switch (action.type) {
     case "ADD_PLAYER": {
       if (state.players.length >= MAX_PLAYERS) return state;
+      const players = [
+        ...state.players,
+        createPlayer(`p${state.nextPlayerId}`, action.name ?? ""),
+      ];
       return {
         ...state,
-        players: [
-          ...state.players,
-          createPlayer(`p${state.nextPlayerId}`, action.name ?? ""),
-        ],
+        players,
         nextPlayerId: state.nextPlayerId + 1,
+        nightBoard: createNightBoard(players),
       };
     }
 
@@ -135,7 +231,11 @@ export function gameReducer(
       if (state.players.length <= 2) return state;
       const players = state.players.filter((player) => player.id !== action.id);
       if (players.length === state.players.length) return state;
-      return withClampedImpostors({ ...state, players });
+      return withClampedImpostors({
+        ...state,
+        players,
+        nightBoard: createNightBoard(players),
+      });
     }
 
     case "UPDATE_PLAYER": {
@@ -143,6 +243,22 @@ export function gameReducer(
         player.id === action.id ? { ...player, name: action.name } : player
       );
       return withClampedImpostors({ ...state, players });
+    }
+
+    case "SET_PLAYERS_FROM_NAMES": {
+      const names = action.names.slice(0, MAX_PLAYERS);
+      const players = names.map((name, i) =>
+        createPlayer(`p${i + 1}`, name)
+      );
+      while (players.length < 3) {
+        players.push(createPlayer(`p${players.length + 1}`));
+      }
+      return withClampedImpostors({
+        ...state,
+        players,
+        nextPlayerId: players.length + 1,
+        nightBoard: createNightBoard(players),
+      });
     }
 
     case "TOGGLE_CATEGORY": {
@@ -158,6 +274,9 @@ export function gameReducer(
           : [...state.selectedCategories, action.category],
       };
     }
+
+    case "SET_CATEGORIES":
+      return { ...state, selectedCategories: action.categories };
 
     case "SET_IMPOSTOR_COUNT": {
       const validCount = getValidPlayers(state.players).length;
@@ -175,6 +294,12 @@ export function gameReducer(
 
     case "TOGGLE_HINTS":
       return { ...state, hintsEnabled: !state.hintsEnabled };
+
+    case "PATCH_SETTINGS":
+      return {
+        ...state,
+        settings: { ...state.settings, ...action.patch },
+      };
 
     case "START_GAME":
     case "RESTART_GAME":
@@ -196,10 +321,9 @@ export function gameReducer(
       const { shuffledOrder, currentPlayerIndex } = state.gameState;
       const nextIndex = currentPlayerIndex + 1;
       if (nextIndex >= shuffledOrder.length) {
-        return { ...state, phase: "playing" };
+        const nextPhase = phaseAfterReveal(state.settings);
+        return { ...state, phase: nextPhase };
       }
-      // Primero se voltea la carta; COMPLETE_FLIP_TO_NEXT avanza al siguiente
-      // jugador cuando ya no se ve el reverso, para no delatar su rol.
       return {
         ...state,
         phase: "passing",
@@ -221,8 +345,116 @@ export function gameReducer(
       };
     }
 
+    case "BEGIN_DISCUSSION":
+      return { ...state, phase: "discussing" };
+
+    case "NEXT_SPEAKER": {
+      if (!state.gameState) return state;
+      const next = state.gameState.speakIndex + 1;
+      if (next >= state.gameState.speakOrder.length) {
+        return {
+          ...state,
+          phase: state.settings.enableVoting ? "voting" : "ended",
+          gameState: { ...state.gameState, speakIndex: 0 },
+        };
+      }
+      return {
+        ...state,
+        gameState: { ...state.gameState, speakIndex: next },
+      };
+    }
+
+    case "SET_WRITTEN_CLUE": {
+      if (!state.gameState) return state;
+      return {
+        ...state,
+        gameState: {
+          ...state.gameState,
+          writtenClues: {
+            ...state.gameState.writtenClues,
+            [action.playerId]: action.clue,
+          },
+        },
+      };
+    }
+
+    case "FINISH_CLUE_ROUND":
+      return { ...state, phase: "discussing" };
+
+    case "BEGIN_VOTING":
+      return { ...state, phase: "voting", ballots: [] };
+
+    case "CAST_VOTE": {
+      const ballots = [
+        ...state.ballots.filter((b) => b.voterId !== action.voterId),
+        { voterId: action.voterId, accusedId: action.accusedId },
+      ];
+      return { ...state, ballots };
+    }
+
+    case "RESOLVE_VOTES": {
+      if (!state.gameState) return state;
+      const result = resolveVotes(state.ballots);
+      const impostorIds = getImpostorIds(state.gameState);
+
+      if (result.kind === "tie" || result.kind === "none") {
+        return {
+          ...state,
+          phase: "result",
+          voteAccusedId: null,
+          civiliansWon: false,
+          nightBoard: recordScore(state, false, null),
+        };
+      }
+
+      const accusedId = result.accusedId;
+      const hit = isCorrectAccusation(accusedId, impostorIds);
+
+      if (hit && state.settings.enableLastWord) {
+        return {
+          ...state,
+          phase: "lastWord",
+          voteAccusedId: accusedId,
+          lastWordPlayerId: accusedId,
+          civiliansWon: true,
+        };
+      }
+
+      return {
+        ...state,
+        phase: "result",
+        voteAccusedId: accusedId,
+        civiliansWon: hit,
+        nightBoard: recordScore(state, hit, accusedId),
+      };
+    }
+
+    case "FINISH_LAST_WORD": {
+      const civiliansWon = state.civiliansWon ?? true;
+      return {
+        ...state,
+        phase: "result",
+        nightBoard: recordScore(state, civiliansWon, state.voteAccusedId),
+      };
+    }
+
+    case "SKIP_TO_REVEAL":
+      return {
+        ...state,
+        phase: "ended",
+        nightBoard: recordScore(state, false, null),
+        civiliansWon: false,
+      };
+
     case "REVEAL_AND_FINISH":
-      return { ...state, phase: "ended" };
+      return {
+        ...state,
+        phase: "ended",
+        nightBoard:
+          state.civiliansWon === null
+            ? recordScore(state, false, null)
+            : state.nightBoard,
+      };
 
     case "SHOW_CARD_FOR_PLAYER":
       return { ...state, repeatCardForPlayerId: action.playerId };
@@ -231,12 +463,15 @@ export function gameReducer(
       return { ...state, repeatCardForPlayerId: null };
 
     case "FINISH_GAME":
-      // Conserva jugadores, categorías e impostores para volver a jugar rápido.
       return {
         ...state,
         phase: "setup",
         gameState: null,
         repeatCardForPlayerId: null,
+        ballots: [],
+        voteAccusedId: null,
+        lastWordPlayerId: null,
+        civiliansWon: null,
       };
 
     case "RESTART_CARD_VIEW": {
@@ -253,8 +488,16 @@ export function gameReducer(
       };
     }
 
+    case "DISMISS_ONBOARDING":
+      return { ...state, showOnboarding: false };
+
     case "RESTORE":
-      return { ...state, ...action.snapshot, repeatCardForPlayerId: null };
+      return {
+        ...state,
+        ...action.snapshot,
+        repeatCardForPlayerId: null,
+        showOnboarding: false,
+      };
 
     default:
       return state;

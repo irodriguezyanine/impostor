@@ -185,7 +185,7 @@ describe("paso del teléfono", () => {
         state = gameReducer(state, { type: "COMPLETE_FLIP_TO_NEXT" });
       }
     }
-    expect(state.phase).toBe("playing");
+    expect(state.phase).toBe("discussing");
   });
 });
 
@@ -318,6 +318,12 @@ describe("restauración de una partida guardada", () => {
         categoryVisibility: saved.categoryVisibility,
         hintsEnabled: saved.hintsEnabled,
         impostorHistory: saved.impostorHistory,
+        settings: saved.settings,
+        nightBoard: saved.nightBoard,
+        ballots: saved.ballots,
+        voteAccusedId: saved.voteAccusedId,
+        lastWordPlayerId: saved.lastWordPlayerId,
+        civiliansWon: saved.civiliansWon,
       },
     });
 

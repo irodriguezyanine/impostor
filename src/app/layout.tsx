@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/context/GameContext";
 import { LocaleSync } from "@/components/LocaleSync";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -171,6 +172,7 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased bg-background min-h-screen text-slate-100`}>
         <GameProvider>
           <LocaleSync />
+          <ServiceWorkerRegister />
           {children}
         </GameProvider>
       </body>

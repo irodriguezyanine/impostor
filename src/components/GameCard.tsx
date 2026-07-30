@@ -8,7 +8,9 @@ import { useTranslations } from "@/hooks/useTranslations";
 type GameCardProps = {
   playerName: string;
   isRevealed: boolean;
-  role: "civilian" | "impostor";
+  role: "civilian" | "impostor" | "mrWhite";
+  /** Modo palabra cercana: el impostor ve esto en vez de la secreta. */
+  closeWord?: string | null;
   secretWord?: string;
   categoryNames?: string[];
   showCategories?: boolean;
@@ -23,6 +25,7 @@ export function GameCard({
   playerName,
   isRevealed,
   role,
+  closeWord = null,
   secretWord = "",
   categoryNames = [],
   showCategories = true,
@@ -35,6 +38,8 @@ export function GameCard({
   const t = useTranslations();
   const prefersReducedMotion = useReducedMotion();
   const cardHeight = "h-[420px]";
+  const isImpostor = role === "impostor";
+  const isMrWhite = role === "mrWhite";
 
   return (
     <div className="w-full max-w-md mx-auto perspective-1000">
@@ -132,6 +137,25 @@ export function GameCard({
                     {secretWord}
                   </motion.p>
                 </>
+              ) : isMrWhite ? (
+                <>
+                  <motion.div
+                    initial={prefersReducedMotion ? false : { scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="flex justify-center"
+                  >
+                    <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center">
+                      <UserX size={40} className="text-slate-200" aria-hidden />
+                    </div>
+                  </motion.div>
+                  <p className="text-lg font-bold text-slate-100 mt-2">
+                    Mr. White
+                  </p>
+                  <p className="text-slate-300 text-sm">
+                    No conoces la palabra. Escucha y trata de mezclarte. Si te
+                    descubren, puedes ganar adivinándola.
+                  </p>
+                </>
               ) : (
                 <>
                   <motion.div
@@ -154,12 +178,18 @@ export function GameCard({
                   <p className="text-slate-300 text-sm">
                     {t.impostorDescription}
                   </p>
+                  {closeWord ? (
+                    <p className="text-amber-200 text-sm mt-2">
+                      Palabra cercana:{" "}
+                      <span className="font-bold">{closeWord}</span>
+                    </p>
+                  ) : null}
                 </>
               )}
             </div>
 
             <div className="min-h-[52px] flex flex-col justify-center py-1">
-              {role === "impostor" &&
+              {isImpostor &&
               showCategories &&
               categoryNames.length > 0 ? (
                 <div className="space-y-1">
@@ -183,7 +213,7 @@ export function GameCard({
             </div>
 
             <div className="min-h-[72px] flex flex-col justify-center">
-              {role === "impostor" && hintsEnabled !== false ? (
+              {isImpostor && hintsEnabled !== false ? (
                 <div className="pt-2 px-4 py-3 rounded-xl bg-amber-500/20 border-2 border-amber-500/40">
                   <p className="text-amber-300 text-xs font-semibold mb-1 uppercase tracking-wider">
                     {t.impostorHintLabel}
