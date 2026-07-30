@@ -23,7 +23,6 @@ export function CategorySelector() {
     toggleCategoryVisibility,
     hintsEnabled,
     toggleHints,
-    allCategories,
   } = useGame();
   const t = useTranslations();
   const [tooltipCategory, setTooltipCategory] = useState<string | null>(null);
@@ -35,18 +34,16 @@ export function CategorySelector() {
   const removeAccents = (s: string) =>
     s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  const sourceCategories = allCategories?.length ? allCategories : CATEGORIES;
-
   const filteredCategories = React.useMemo(() => {
-    if (!searchQuery.trim()) return sourceCategories;
+    if (!searchQuery.trim()) return CATEGORIES;
     const q = removeAccents(searchQuery.trim().toLowerCase());
-    return sourceCategories.filter((cat) => {
+    return CATEGORIES.filter((cat) => {
       const displayName = removeAccents((t.categories[cat.id] ?? cat.name).toLowerCase());
       const name = removeAccents(cat.name.toLowerCase());
       const id = cat.id.toLowerCase().replace(/-/g, " ");
       return displayName.includes(q) || name.includes(q) || id.includes(q);
     });
-  }, [searchQuery, t.categories, sourceCategories]);
+  }, [searchQuery, t.categories]);
 
   const handleCategoryClick = useCallback(
     (category: Category) => {

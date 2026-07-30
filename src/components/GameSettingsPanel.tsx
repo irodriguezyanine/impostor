@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Settings } from "lucide-react";
+import { ChevronDown, Settings } from "lucide-react";
 import type {
   Difficulty,
   DiscussSeconds,
@@ -118,63 +118,72 @@ export function GameSettingsPanel({
   };
 
   return (
-    <div className="w-full rounded-2xl bg-surface border border-white/10 p-5 space-y-5 shadow-card">
-      <div className="flex items-center gap-2 text-slate-200 font-semibold">
-        <Settings size={18} className="text-primary" aria-hidden="true" />
-        Ajustes de partida
-      </div>
+    <details className="group w-full rounded-2xl bg-surface border border-white/10 shadow-card">
+      <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-4 text-slate-200 transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60">
+        <span className="flex items-center gap-2 font-semibold">
+          <Settings size={18} className="text-primary" aria-hidden="true" />
+          Ajustes de partida
+        </span>
+        <ChevronDown
+          size={20}
+          className="text-slate-400 transition-transform group-open:rotate-180"
+          aria-hidden="true"
+        />
+      </summary>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <SelectField
-          label="Modo"
-          value={settings.mode}
-          options={MODE_OPTIONS}
-          onChange={(v) => handleMode(v as GameModeId)}
-        />
-        <SelectField
-          label="Dificultad"
-          value={settings.difficulty}
-          options={DIFFICULTY_OPTIONS}
-          onChange={(v) => onChange({ difficulty: v as Difficulty })}
-        />
-        <SelectField
-          label="Tiempo de discusión"
-          value={settings.discussSeconds}
-          options={DISCUSS_OPTIONS}
-          onChange={(v) =>
-            onChange({ discussSeconds: v as DiscussSeconds })
-          }
-        />
-        <SelectField
-          label="Tema"
-          value={settings.theme}
-          options={THEME_OPTIONS}
-          onChange={(v) =>
-            onChange({ theme: v as GameSettings["theme"] })
-          }
-        />
-      </div>
+      <div className="space-y-5 border-t border-white/10 px-5 pb-5 pt-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SelectField
+            label="Modo"
+            value={settings.mode}
+            options={MODE_OPTIONS}
+            onChange={(v) => handleMode(v as GameModeId)}
+          />
+          <SelectField
+            label="Dificultad"
+            value={settings.difficulty}
+            options={DIFFICULTY_OPTIONS}
+            onChange={(v) => onChange({ difficulty: v as Difficulty })}
+          />
+          <SelectField
+            label="Tiempo de discusión"
+            value={settings.discussSeconds}
+            options={DISCUSS_OPTIONS}
+            onChange={(v) =>
+              onChange({ discussSeconds: v as DiscussSeconds })
+            }
+          />
+          <SelectField
+            label="Tema"
+            value={settings.theme}
+            options={THEME_OPTIONS}
+            onChange={(v) =>
+              onChange({ theme: v as GameSettings["theme"] })
+            }
+          />
+        </div>
 
-      <div className="space-y-2">
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-          Opciones
-        </p>
-        <ul className="space-y-1">
-          {TOGGLES.map(({ key, label }) => (
-            <li key={key}>
-              <label className="flex items-center justify-between gap-3 rounded-xl bg-surface-light/50 border border-white/5 px-3 py-2.5 cursor-pointer min-h-[44px]">
-                <span className="text-sm text-slate-200">{label}</span>
-                <input
-                  type="checkbox"
-                  checked={settings[key]}
-                  onChange={(e) => onChange({ [key]: e.target.checked })}
-                  className="h-5 w-5 rounded accent-primary"
-                />
-              </label>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            Opciones
+          </p>
+          <ul className="space-y-1">
+            {TOGGLES.map(({ key, label }) => (
+              <li key={key}>
+                <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/5 bg-surface-light/50 px-3 py-2.5">
+                  <span className="text-sm text-slate-200">{label}</span>
+                  <input
+                    type="checkbox"
+                    checked={settings[key]}
+                    onChange={(e) => onChange({ [key]: e.target.checked })}
+                    className="h-5 w-5 rounded accent-primary"
+                  />
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
+    </details>
   );
 }

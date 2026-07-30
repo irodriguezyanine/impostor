@@ -29,7 +29,6 @@ import {
   type GameSettings,
 } from "@/lib/game-settings";
 import { LOCALES, type Locale } from "@/lib/i18n";
-import { loadCustomCategories } from "@/lib/custom-categories";
 import { track } from "@/lib/product-stubs";
 
 export type { GamePhase, GameState, PlayerRole } from "@/lib/game-logic";
@@ -37,13 +36,10 @@ export type { Player } from "@/lib/players";
 
 type GameContextValue = GameContextState & {
   isHydrated: boolean;
-  allCategories: Category[];
   addPlayer: (name?: string) => void;
   removePlayer: (id: string) => void;
   updatePlayer: (id: string, name: string) => void;
-  setPlayersFromNames: (names: string[]) => void;
   toggleCategory: (category: Category) => void;
-  setCategories: (categories: Category[]) => void;
   setImpostorCount: (count: number) => void;
   setLocale: (locale: Locale) => void;
   toggleCategoryVisibility: () => void;
@@ -69,7 +65,6 @@ type GameContextValue = GameContextState & {
   showCardForPlayer: (playerId: string) => void;
   clearRepeatCard: () => void;
   dismissOnboarding: () => void;
-  refreshCustomCategories: () => void;
 };
 
 const LOCALE_STORAGE_KEY = "imposter-locale";
@@ -97,10 +92,8 @@ function storeLocale(locale: Locale): void {
 }
 
 function findCategories(ids: readonly string[]): Category[] {
-  const custom = loadCustomCategories();
-  const all = [...CATEGORIES, ...custom];
   return ids
-    .map((id) => all.find((category) => category.id === id))
+    .map((id) => CATEGORIES.find((category) => category.id === id))
     .filter((category): category is Category => Boolean(category));
 }
 
@@ -117,7 +110,6 @@ const GameContext = createContext<GameContextValue | null>(null);
 export function GameProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, createInitialState);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [customTick, setCustomTick] = useState(0);
   const hasHydrated = useRef(false);
 
   useEffect(() => {
@@ -211,14 +203,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const updatePlayer = useCallback((id: string, name: string) => {
     dispatch({ type: "UPDATE_PLAYER", id, name });
   }, []);
-  const setPlayersFromNames = useCallback((names: string[]) => {
-    dispatch({ type: "SET_PLAYERS_FROM_NAMES", names });
-  }, []);
   const toggleCategory = useCallback((category: Category) => {
     dispatch({ type: "TOGGLE_CATEGORY", category });
-  }, []);
-  const setCategories = useCallback((categories: Category[]) => {
-    dispatch({ type: "SET_CATEGORIES", categories });
   }, []);
   const setImpostorCount = useCallback((count: number) => {
     dispatch({ type: "SET_IMPOSTOR_COUNT", count });
@@ -306,26 +292,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
     dispatch({ type: "DISMISS_ONBOARDING" });
   }, []);
-  const refreshCustomCategories = useCallback(() => {
-    setCustomTick((n) => n + 1);
-  }, []);
-
-  const allCategories = useMemo(() => {
-    void customTick;
-    return [...CATEGORIES, ...loadCustomCategories()];
-  }, [customTick]);
-
   const value = useMemo<GameContextValue>(
     () => ({
       ...state,
       isHydrated,
-      allCategories,
       addPlayer,
       removePlayer,
       updatePlayer,
-      setPlayersFromNames,
       toggleCategory,
-      setCategories,
       setImpostorCount,
       setLocale,
       toggleCategoryVisibility,
@@ -351,18 +325,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
       showCardForPlayer,
       clearRepeatCard,
       dismissOnboarding,
-      refreshCustomCategories,
     }),
     [
       state,
       isHydrated,
-      allCategories,
       addPlayer,
       removePlayer,
       updatePlayer,
-      setPlayersFromNames,
       toggleCategory,
-      setCategories,
       setImpostorCount,
       setLocale,
       toggleCategoryVisibility,
@@ -388,7 +358,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
       showCardForPlayer,
       clearRepeatCard,
       dismissOnboarding,
-      refreshCustomCategories,
     ]
   );
 

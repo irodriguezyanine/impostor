@@ -79,9 +79,7 @@ export type Action =
   | { type: "ADD_PLAYER"; name?: string }
   | { type: "REMOVE_PLAYER"; id: string }
   | { type: "UPDATE_PLAYER"; id: string; name: string }
-  | { type: "SET_PLAYERS_FROM_NAMES"; names: string[] }
   | { type: "TOGGLE_CATEGORY"; category: Category }
-  | { type: "SET_CATEGORIES"; categories: Category[] }
   | { type: "SET_IMPOSTOR_COUNT"; count: number }
   | { type: "SET_LOCALE"; locale: Locale }
   | { type: "TOGGLE_CATEGORY_VISIBILITY" }
@@ -245,22 +243,6 @@ export function gameReducer(
       return withClampedImpostors({ ...state, players });
     }
 
-    case "SET_PLAYERS_FROM_NAMES": {
-      const names = action.names.slice(0, MAX_PLAYERS);
-      const players = names.map((name, i) =>
-        createPlayer(`p${i + 1}`, name)
-      );
-      while (players.length < 3) {
-        players.push(createPlayer(`p${players.length + 1}`));
-      }
-      return withClampedImpostors({
-        ...state,
-        players,
-        nextPlayerId: players.length + 1,
-        nightBoard: createNightBoard(players),
-      });
-    }
-
     case "TOGGLE_CATEGORY": {
       const isSelected = state.selectedCategories.some(
         (category) => category.id === action.category.id
@@ -274,9 +256,6 @@ export function gameReducer(
           : [...state.selectedCategories, action.category],
       };
     }
-
-    case "SET_CATEGORIES":
-      return { ...state, selectedCategories: action.categories };
 
     case "SET_IMPOSTOR_COUNT": {
       const validCount = getValidPlayers(state.players).length;

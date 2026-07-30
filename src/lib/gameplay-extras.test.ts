@@ -11,7 +11,6 @@ import {
   isUnbalancedImpostorSetup,
   estimateDurationMinutes,
 } from "@/lib/game-settings";
-import { parsePlayersFromText } from "@/lib/tables";
 
 describe("votación", () => {
   it("detecta mayoría", () => {
@@ -66,16 +65,5 @@ describe("settings helpers", () => {
     expect(suggestImpostorCount(7)).toBe(2);
     expect(isUnbalancedImpostorSetup(4, 2)).toBe(true);
     expect(estimateDurationMinutes(6, 120)).toBeGreaterThan(3);
-  });
-});
-
-describe("mesas", () => {
-  it("parsea nombres pegados", () => {
-    expect(parsePlayersFromText("Ana, Bea\nCaro; Dani")).toEqual([
-      "Ana",
-      "Bea",
-      "Caro",
-      "Dani",
-    ]);
   });
 });

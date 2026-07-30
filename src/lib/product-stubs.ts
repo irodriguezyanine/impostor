@@ -30,48 +30,6 @@ export function track(event: AnalyticsEvent): void {
   }
 }
 
-export type RoomStub = {
-  code: string;
-  host: boolean;
-  status: "local-only";
-  message: string;
-};
-
-/** Rooms online requieren servidor; generamos código local para compartir setup. */
-export function createLocalRoomCode(): RoomStub {
-  const code = Math.random().toString(36).slice(2, 8).toUpperCase();
-  return {
-    code,
-    host: true,
-    status: "local-only",
-    message:
-      "Modo online próximamente. Por ahora comparte este código solo como referencia de mesa.",
-  };
-}
-
-export type CheckoutStub = {
-  ok: false;
-  url: string;
-  message: string;
-};
-
-export function openCategoryCommissionWhatsApp(
-  categoryName: string
-): CheckoutStub {
-  const text = encodeURIComponent(
-    `Hola! Quiero encargar la categoría "${categoryName}" para Impostor Chile.`
-  );
-  return {
-    ok: false,
-    url: `https://wa.me/56900000000?text=${text}`,
-    message: "Checkout Stripe llega pronto; por ahora el encargo es por WhatsApp.",
-  };
-}
-
-export function tipJarUrl(): string {
-  return "https://www.imaginatuweb.cl";
-}
-
 export type ReportPayload = {
   word: string;
   categoryId: string;
@@ -105,7 +63,7 @@ export const CHANGELOG = [
     items: [
       "Timer, turnos de habla y votación estructurada",
       "Marcador de la noche y modos (Blitz, Mr. White, pista falsa…)",
-      "Mesas guardadas, categorías custom y PWA offline",
+      "Nuevas categorías y PWA offline",
       "Rotación equitativa de impostores",
     ],
   },

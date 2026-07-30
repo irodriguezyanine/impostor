@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { PlayerInputList } from "@/components/PlayerInputList";
@@ -9,8 +9,6 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { HowToPlay } from "@/components/HowToPlay";
 import { SeoContent } from "@/components/SeoContent";
 import { GameSettingsPanel } from "@/components/GameSettingsPanel";
-import { SavedTablesPanel } from "@/components/SavedTablesPanel";
-import { CustomCategoryEditor } from "@/components/CustomCategoryEditor";
 import { OnboardingTutorial } from "@/components/OnboardingTutorial";
 import { ChangelogModal } from "@/components/ChangelogModal";
 import { ImpostorHistoryBadge } from "@/components/ImpostorHistoryBadge";
@@ -24,7 +22,7 @@ import {
 } from "@/lib/game-settings";
 import { getMaxImpostors, getValidPlayers } from "@/lib/players";
 import { historyView } from "@/lib/round-memory";
-import { createLocalRoomCode, tipJarUrl, track } from "@/lib/product-stubs";
+import { track } from "@/lib/product-stubs";
 import { Minus, Plus } from "lucide-react";
 
 export default function HomePage() {
@@ -37,16 +35,11 @@ export default function HomePage() {
     startGame,
     settings,
     patchSettings,
-    setPlayersFromNames,
-    setCategories,
     showOnboarding,
     dismissOnboarding,
     impostorHistory,
-    allCategories,
-    refreshCustomCategories,
   } = useGame();
   const t = useTranslations();
-  const [roomMsg, setRoomMsg] = useState<string | null>(null);
 
   const validPlayers = getValidPlayers(players);
   const setupIssue = validateSetup({
@@ -134,21 +127,6 @@ export default function HomePage() {
               <PlayerInputList />
             </div>
 
-            <SavedTablesPanel
-              players={players}
-              categoryIds={selectedCategories.map((c) => c.id)}
-              impostorCount={impostorCount}
-              onImportNames={setPlayersFromNames}
-              onLoad={(table) => {
-                setPlayersFromNames(table.players.map((p) => p.name));
-                setImpostorCount(table.impostorCount);
-                const cats = allCategories.filter((c) =>
-                  table.categoryIds.includes(c.id)
-                );
-                setCategories(cats);
-              }}
-            />
-
             <div className="bg-surface/95 rounded-2xl shadow-card border border-white/10 p-6 backdrop-blur-sm">
               <h2 className="text-lg font-semibold text-slate-100 mb-2">
                 {t.impostorCount}
@@ -207,35 +185,6 @@ export default function HomePage() {
               <CategorySelector />
             </div>
 
-            <CustomCategoryEditor onCategoriesChange={refreshCustomCategories} />
-
-            <div className="bg-surface/95 rounded-2xl border border-white/10 p-4 space-y-2">
-              <p className="text-sm text-slate-300 font-medium">
-                Mesa online (próximamente)
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  const room = createLocalRoomCode();
-                  setRoomMsg(`${room.code}: ${room.message}`);
-                }}
-                className="w-full py-3 rounded-xl bg-surface-light text-slate-100 border border-white/10 min-h-[44px]"
-              >
-                Generar código local
-              </button>
-              {roomMsg ? (
-                <p className="text-xs text-slate-400">{roomMsg}</p>
-              ) : null}
-              <a
-                href={tipJarUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block text-center text-xs text-slate-500 hover:text-slate-300"
-              >
-                Invítanos un café / tip jar
-              </a>
-            </div>
-
             <HowToPlay />
             <SeoContent />
           </motion.main>
@@ -245,7 +194,7 @@ export default function HomePage() {
 
       <aside
         className="hidden md:flex fixed right-6 bottom-40 z-20 flex-col items-end gap-1.5 opacity-25 hover:opacity-45 transition-opacity duration-300 select-none"
-        aria-label="Créditos y crear categoría"
+        aria-label="Créditos"
       >
         <a
           href="https://www.imaginatuweb.cl"
@@ -254,14 +203,6 @@ export default function HomePage() {
           className="text-xs text-slate-500 hover:text-slate-400"
         >
           Página creada por Imaginatuweb.cl
-        </a>
-        <a
-          href="https://wa.me/56976488856?text=Quiero%20crear%20mi%20categoria%20por%20%2420.000"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-slate-500 hover:text-slate-400"
-        >
-          Crea tu categoria acá
         </a>
       </aside>
 
