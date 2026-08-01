@@ -218,6 +218,7 @@ export default function GamePage() {
   };
 
   const handleCover = () => {
+    feedbackPass(settings.soundEnabled, settings.hapticsEnabled);
     if (repeatPlayer) {
       setRepeatCardRevealed(false);
     } else {
