@@ -45,6 +45,7 @@ export default function GamePage() {
     revealAndFinish,
     restartGame,
     revealRole,
+    coverRole,
     hideRole,
     completeFlipToNext,
     showCardForPlayer,
@@ -216,6 +217,14 @@ export default function GamePage() {
     }
   };
 
+  const handleCover = () => {
+    if (repeatPlayer) {
+      setRepeatCardRevealed(false);
+    } else {
+      coverRole();
+    }
+  };
+
   const handleHide = () => {
     feedbackPass(settings.soundEnabled, settings.hapticsEnabled);
     if (repeatPlayer) {
@@ -268,6 +277,7 @@ export default function GamePage() {
       hintsEnabled={hintsEnabled}
       secretWordHint={getHintForPlayer(player.id)}
       onReveal={handleReveal}
+      onCover={handleCover}
       onHide={handleHide}
     />
   );
@@ -351,15 +361,12 @@ export default function GamePage() {
                   showCategories={categoryVisibility}
                   hintsEnabled={hintsEnabled}
                   secretWordHint={
-                    flippingToNextIndex !== null
-                      ? currentPlayer
-                        ? getHintForPlayer(currentPlayer.id)
-                        : null
-                      : nextPlayer
-                        ? getHintForPlayer(nextPlayer.id)
-                        : null
+                    currentPlayer
+                      ? getHintForPlayer(currentPlayer.id)
+                      : null
                   }
                   onReveal={handleReveal}
+                  onCover={handleCover}
                   onHide={handleHide}
                   onFlipComplete={
                     flippingToNextIndex !== null

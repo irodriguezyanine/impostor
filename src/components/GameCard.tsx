@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Eye, EyeOff, UserX } from "lucide-react";
 import { useTranslations } from "@/hooks/useTranslations";
@@ -17,9 +17,40 @@ type GameCardProps = {
   hintsEnabled?: boolean;
   secretWordHint?: string | null;
   onReveal: () => void;
+  /** Oculta la palabra/rol sin pasar al siguiente jugador. */
+  onCover: () => void;
   onHide: () => void;
   onFlipComplete?: () => void;
 };
+
+function CategoryChips({
+  categoryNames,
+  singleLabel,
+  pluralLabel,
+}: {
+  categoryNames: string[];
+  singleLabel: string;
+  pluralLabel: string;
+}) {
+  if (categoryNames.length === 0) return null;
+  return (
+    <div className="space-y-1">
+      <p className="text-slate-400 text-xs font-medium">
+        {categoryNames.length === 1 ? singleLabel : pluralLabel}
+      </p>
+      <div className="flex flex-wrap justify-center gap-1.5">
+        {categoryNames.map((name) => (
+          <span
+            key={name}
+            className="px-2.5 py-1 rounded-lg bg-surface-light border border-white/10 text-slate-200 text-xs font-medium"
+          >
+            {name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function GameCard({
   playerName,
@@ -32,40 +63,35 @@ export function GameCard({
   hintsEnabled = false,
   secretWordHint = null,
   onReveal,
+  onCover,
   onHide,
   onFlipComplete,
 }: GameCardProps) {
   const t = useTranslations();
   const prefersReducedMotion = useReducedMotion();
-  const cardHeight = "h-[420px]";
   const isImpostor = role === "impostor";
   const isMrWhite = role === "mrWhite";
+  const prevRevealed = useRef(isRevealed);
+
+  // Al pasar al siguiente, la carta vuelve a tapada y avisamos cuando listo.
+  useEffect(() => {
+    const wasRevealed = prevRevealed.current;
+    prevRevealed.current = isRevealed;
+    if (!wasRevealed || isRevealed || !onFlipComplete) return;
+    const id = window.setTimeout(
+      () => onFlipComplete(),
+      prefersReducedMotion ? 0 : 180
+    );
+    return () => window.clearTimeout(id);
+  }, [isRevealed, onFlipComplete, prefersReducedMotion]);
+
+  const shellClass =
+    "relative w-full h-[420px] rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center overflow-hidden";
 
   return (
-    <div className="w-full max-w-md mx-auto perspective-1000">
-      <motion.div
-        className={`relative w-full ${cardHeight} preserve-3d`}
-        initial={false}
-        animate={{ rotateY: isRevealed ? 180 : 0 }}
-        transition={
-          prefersReducedMotion
-            ? { duration: 0 }
-            : { type: "spring", stiffness: 200, damping: 25 }
-        }
-        onAnimationComplete={() => {
-          if (!isRevealed && onFlipComplete) onFlipComplete();
-        }}
-      >
-        {/* Frente */}
-        <div
-          className="absolute inset-0 w-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center"
-          style={{
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-          }}
-          aria-hidden={isRevealed}
-          inert={isRevealed ? true : undefined}
-        >
+    <div className="w-full max-w-md mx-auto">
+      <div className={shellClass}>
+        {!isRevealed ? (
           <div className="text-center space-y-6">
             <p className="text-slate-200 text-lg">
               {t.passTo}{" "}
@@ -78,51 +104,24 @@ export function GameCard({
                 e.stopPropagation();
                 onReveal();
               }}
-              onPointerDown={(e) => {
-                e.stopPropagation();
-              }}
-              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2 touch-manipulation select-none cursor-pointer active:scale-[0.98] transition-transform min-h-[52px] relative z-10"
+              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2 touch-manipulation select-none cursor-pointer active:scale-[0.98] transition-transform min-h-[52px]"
             >
               <Eye size={24} aria-hidden />
               {t.revealRole}
             </button>
             <div className="pt-2">
               {showCategories && categoryNames.length > 0 ? (
-                <div className="space-y-2">
-                  <p className="text-slate-400 text-xs font-medium">
-                    {categoryNames.length === 1
-                      ? t.categoryLabel
-                      : t.categoriesLabel}
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-1.5">
-                    {categoryNames.map((name) => (
-                      <span
-                        key={name}
-                        className="px-2.5 py-1 rounded-lg bg-surface-light border border-white/10 text-slate-200 text-xs font-medium"
-                      >
-                        {name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <CategoryChips
+                  categoryNames={categoryNames}
+                  singleLabel={t.categoryLabel}
+                  pluralLabel={t.categoriesLabel}
+                />
               ) : (
                 <p className="text-slate-400 text-sm">{t.categorySecretLabel}</p>
               )}
             </div>
           </div>
-        </div>
-
-        {/* Reverso */}
-        <div
-          className="absolute inset-0 w-full backface-hidden rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center overflow-hidden"
-          style={{
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-          }}
-          aria-hidden={!isRevealed}
-          inert={!isRevealed ? true : undefined}
-        >
+        ) : (
           <div className="flex flex-col justify-between h-full text-center">
             <div className="min-h-[100px] flex flex-col justify-center">
               {role === "civilian" ? (
@@ -131,7 +130,7 @@ export function GameCard({
                   <motion.p
                     initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: prefersReducedMotion ? 0 : 0.2 }}
+                    transition={{ delay: prefersReducedMotion ? 0 : 0.1 }}
                     className="text-2xl font-bold text-slate-100 break-words mt-2"
                   >
                     {secretWord}
@@ -139,15 +138,11 @@ export function GameCard({
                 </>
               ) : isMrWhite ? (
                 <>
-                  <motion.div
-                    initial={prefersReducedMotion ? false : { scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="flex justify-center"
-                  >
+                  <div className="flex justify-center">
                     <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center">
                       <UserX size={40} className="text-slate-200" aria-hidden />
                     </div>
-                  </motion.div>
+                  </div>
                   <p className="text-lg font-bold text-slate-100 mt-2">
                     Mr. White
                   </p>
@@ -158,20 +153,11 @@ export function GameCard({
                 </>
               ) : (
                 <>
-                  <motion.div
-                    initial={prefersReducedMotion ? false : { scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={
-                      prefersReducedMotion
-                        ? { duration: 0 }
-                        : { type: "spring", stiffness: 200, delay: 0.1 }
-                    }
-                    className="flex justify-center"
-                  >
+                  <div className="flex justify-center">
                     <div className="w-20 h-20 rounded-full bg-red-900/50 flex items-center justify-center">
                       <UserX size={40} className="text-red-300" aria-hidden />
                     </div>
-                  </motion.div>
+                  </div>
                   <p className="text-lg font-bold text-red-300 mt-2">
                     {t.impostorReveal}
                   </p>
@@ -189,26 +175,12 @@ export function GameCard({
             </div>
 
             <div className="min-h-[52px] flex flex-col justify-center py-1">
-              {isImpostor &&
-              showCategories &&
-              categoryNames.length > 0 ? (
-                <div className="space-y-1">
-                  <p className="text-slate-400 text-xs font-medium">
-                    {categoryNames.length === 1
-                      ? t.categoryLabel
-                      : t.categoriesLabel}
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-1.5">
-                    {categoryNames.map((name) => (
-                      <span
-                        key={name}
-                        className="px-2.5 py-1 rounded-lg bg-surface-light border border-white/10 text-slate-200 text-xs font-medium"
-                      >
-                        {name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+              {isImpostor && showCategories && categoryNames.length > 0 ? (
+                <CategoryChips
+                  categoryNames={categoryNames}
+                  singleLabel={t.categoryLabel}
+                  pluralLabel={t.categoriesLabel}
+                />
               ) : null}
             </div>
 
@@ -225,17 +197,26 @@ export function GameCard({
               ) : null}
             </div>
 
-            <motion.button
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-              onClick={onHide}
-              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 flex-shrink-0 min-h-[52px]"
-            >
-              <EyeOff size={20} aria-hidden />
-              {t.passToNextPlayer}
-            </motion.button>
+            <div className="space-y-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={onCover}
+                className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 min-h-[52px] active:scale-[0.98] transition-transform"
+              >
+                <EyeOff size={20} aria-hidden />
+                {t.hideReady}
+              </button>
+              <button
+                type="button"
+                onClick={onHide}
+                className="w-full py-3 px-6 rounded-2xl bg-surface-light text-slate-100 font-bold border border-white/10 flex items-center justify-center gap-2 min-h-[48px] active:scale-[0.98] transition-transform"
+              >
+                {t.passToNextPlayer}
+              </button>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        )}
+      </div>
     </div>
   );
 }

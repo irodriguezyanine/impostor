@@ -121,7 +121,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     passTo: "Pásale el teléfono a",
     revealRole: "VER MI ROL",
     passToNextPlayer: "Pasar al siguiente jugador",
-    hideReady: "OCULTAR / LISTO",
+    hideReady: "OCULTAR",
     civilian: "CIVIL",
     civilianReveal: "Tú eres CIVIL. La palabra secreta es:",
     secretWord: "Palabra secreta",

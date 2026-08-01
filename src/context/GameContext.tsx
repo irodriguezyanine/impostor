@@ -47,6 +47,7 @@ type GameContextValue = GameContextState & {
   patchSettings: (patch: Partial<GameSettings>) => void;
   startGame: () => void;
   revealRole: (playerId: string) => void;
+  coverRole: () => void;
   hideRole: () => void;
   completeFlipToNext: () => void;
   beginDiscussion: () => void;
@@ -233,6 +234,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const revealRole = useCallback((playerId: string) => {
     dispatch({ type: "REVEAL_ROLE", playerId });
   }, []);
+  const coverRole = useCallback(() => {
+    dispatch({ type: "COVER_ROLE" });
+  }, []);
   const hideRole = useCallback(() => {
     dispatch({ type: "HIDE_ROLE" });
   }, []);
@@ -307,6 +311,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       patchSettings,
       startGame,
       revealRole,
+      coverRole,
       hideRole,
       completeFlipToNext,
       beginDiscussion,
@@ -340,6 +345,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       patchSettings,
       startGame,
       revealRole,
+      coverRole,
       hideRole,
       completeFlipToNext,
       beginDiscussion,

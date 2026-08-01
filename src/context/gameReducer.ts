@@ -87,6 +87,8 @@ export type Action =
   | { type: "PATCH_SETTINGS"; patch: Partial<GameSettings> }
   | { type: "START_GAME" }
   | { type: "REVEAL_ROLE"; playerId: string }
+  /** Oculta la carta del jugador actual sin pasar al siguiente. */
+  | { type: "COVER_ROLE" }
   | { type: "HIDE_ROLE" }
   | { type: "COMPLETE_FLIP_TO_NEXT" }
   | { type: "BEGIN_DISCUSSION" }
@@ -292,6 +294,24 @@ export function gameReducer(
         ...state,
         phase: "revealing",
         gameState: { ...state.gameState, revealedPlayers },
+      };
+    }
+
+    case "COVER_ROLE": {
+      if (!state.gameState) return state;
+      const current =
+        state.gameState.shuffledOrder[state.gameState.currentPlayerIndex];
+      if (!current) return state;
+      const revealedPlayers = new Set(state.gameState.revealedPlayers);
+      revealedPlayers.delete(current.id);
+      return {
+        ...state,
+        phase: "passing",
+        gameState: {
+          ...state.gameState,
+          revealedPlayers,
+          flippingToNextIndex: null,
+        },
       };
     }
 

@@ -174,6 +174,34 @@ describe("paso del teléfono", () => {
     expect(advanced.gameState!.flippingToNextIndex).toBeNull();
   });
 
+  // La palabra se mira a escondidas: revelar → ocultar → volver a revelar,
+  // sin pasar el teléfono al siguiente.
+  it("permite ocultar la carta y volver a verla sin avanzar de jugador", () => {
+    const state = startedState(["Ana", "Bea", "Caro"]);
+    const first = state.gameState!.shuffledOrder[0];
+
+    const revealed = gameReducer(state, {
+      type: "REVEAL_ROLE",
+      playerId: first.id,
+    });
+    expect(revealed.phase).toBe("revealing");
+    expect(revealed.gameState!.revealedPlayers.has(first.id)).toBe(true);
+
+    const covered = gameReducer(revealed, { type: "COVER_ROLE" });
+    expect(covered.phase).toBe("passing");
+    expect(covered.gameState!.revealedPlayers.has(first.id)).toBe(false);
+    expect(covered.gameState!.currentPlayerIndex).toBe(0);
+    expect(covered.gameState!.flippingToNextIndex).toBeNull();
+
+    const revealedAgain = gameReducer(covered, {
+      type: "REVEAL_ROLE",
+      playerId: first.id,
+    });
+    expect(revealedAgain.phase).toBe("revealing");
+    expect(revealedAgain.gameState!.revealedPlayers.has(first.id)).toBe(true);
+    expect(revealedAgain.gameState!.currentPlayerIndex).toBe(0);
+  });
+
   it("pasa a jugar cuando el último jugador oculta su carta", () => {
     let state = startedState(["Ana", "Bea", "Caro"]);
     for (let i = 0; i < 3; i++) {
