@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { Eye, EyeOff, UserX } from "lucide-react";
 import { useTranslations } from "@/hooks/useTranslations";
 
@@ -52,6 +52,9 @@ function CategoryChips({
   );
 }
 
+const primaryBtnClass =
+  "w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2 touch-manipulation select-none cursor-pointer active:scale-[0.98] transition-transform min-h-[52px]";
+
 export function GameCard({
   playerName,
   isRevealed,
@@ -85,27 +88,21 @@ export function GameCard({
     return () => window.clearTimeout(id);
   }, [isRevealed, onFlipComplete, prefersReducedMotion]);
 
-  const shellClass =
-    "relative w-full h-[420px] rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col justify-center overflow-hidden";
+  const toggleReveal = () => {
+    if (isRevealed) onCover();
+    else onReveal();
+  };
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className={shellClass}>
+      <div className="relative w-full min-h-[420px] rounded-3xl bg-surface shadow-card border border-white/10 p-8 flex flex-col">
         {!isRevealed ? (
-          <div className="text-center space-y-6">
+          <div className="flex flex-1 flex-col justify-center text-center space-y-6">
             <p className="text-slate-200 text-lg">
               {t.passTo}{" "}
               <span className="font-bold text-slate-100">{playerName}</span>
             </p>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onReveal();
-              }}
-              className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold text-lg flex items-center justify-center gap-2 touch-manipulation select-none cursor-pointer active:scale-[0.98] transition-transform min-h-[52px]"
-            >
+            <button type="button" onClick={toggleReveal} className={primaryBtnClass}>
               <Eye size={24} aria-hidden />
               {t.revealRole}
             </button>
@@ -122,19 +119,14 @@ export function GameCard({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col justify-between h-full text-center">
-            <div className="min-h-[100px] flex flex-col justify-center">
+          <div className="flex flex-1 flex-col justify-between text-center gap-4">
+            <div className="flex flex-col justify-center gap-2 pt-2">
               {role === "civilian" ? (
                 <>
                   <p className="text-slate-200 text-base">{t.civilianReveal}</p>
-                  <motion.p
-                    initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: prefersReducedMotion ? 0 : 0.1 }}
-                    className="text-2xl font-bold text-slate-100 break-words mt-2"
-                  >
+                  <p className="text-2xl font-bold text-slate-100 break-words">
                     {secretWord}
-                  </motion.p>
+                  </p>
                 </>
               ) : isMrWhite ? (
                 <>
@@ -143,9 +135,7 @@ export function GameCard({
                       <UserX size={40} className="text-slate-200" aria-hidden />
                     </div>
                   </div>
-                  <p className="text-lg font-bold text-slate-100 mt-2">
-                    Mr. White
-                  </p>
+                  <p className="text-lg font-bold text-slate-100">Mr. White</p>
                   <p className="text-slate-300 text-sm">
                     No conoces la palabra. Escucha y trata de mezclarte. Si te
                     descubren, puedes ganar adivinándola.
@@ -158,14 +148,14 @@ export function GameCard({
                       <UserX size={40} className="text-red-300" aria-hidden />
                     </div>
                   </div>
-                  <p className="text-lg font-bold text-red-300 mt-2">
+                  <p className="text-lg font-bold text-red-300">
                     {t.impostorReveal}
                   </p>
                   <p className="text-slate-300 text-sm">
                     {t.impostorDescription}
                   </p>
                   {closeWord ? (
-                    <p className="text-amber-200 text-sm mt-2">
+                    <p className="text-amber-200 text-sm">
                       Palabra cercana:{" "}
                       <span className="font-bold">{closeWord}</span>
                     </p>
@@ -174,42 +164,39 @@ export function GameCard({
               )}
             </div>
 
-            <div className="min-h-[52px] flex flex-col justify-center py-1">
-              {isImpostor && showCategories && categoryNames.length > 0 ? (
-                <CategoryChips
-                  categoryNames={categoryNames}
-                  singleLabel={t.categoryLabel}
-                  pluralLabel={t.categoriesLabel}
-                />
-              ) : null}
-            </div>
+            {isImpostor && showCategories && categoryNames.length > 0 ? (
+              <CategoryChips
+                categoryNames={categoryNames}
+                singleLabel={t.categoryLabel}
+                pluralLabel={t.categoriesLabel}
+              />
+            ) : null}
 
-            <div className="min-h-[72px] flex flex-col justify-center">
-              {isImpostor && hintsEnabled !== false ? (
-                <div className="pt-2 px-4 py-3 rounded-xl bg-amber-500/20 border-2 border-amber-500/40">
-                  <p className="text-amber-300 text-xs font-semibold mb-1 uppercase tracking-wider">
-                    {t.impostorHintLabel}
-                  </p>
-                  <p className="text-amber-50 font-bold text-lg leading-tight">
-                    {secretWordHint || categoryNames?.[0] || t.categoryLabel}
-                  </p>
-                </div>
-              ) : null}
-            </div>
+            {isImpostor && hintsEnabled !== false ? (
+              <div className="px-4 py-3 rounded-xl bg-amber-500/20 border-2 border-amber-500/40">
+                <p className="text-amber-300 text-xs font-semibold mb-1 uppercase tracking-wider">
+                  {t.impostorHintLabel}
+                </p>
+                <p className="text-amber-50 font-bold text-lg leading-tight">
+                  {secretWordHint || categoryNames[0] || t.categoryLabel}
+                </p>
+              </div>
+            ) : null}
 
-            <div className="space-y-2 flex-shrink-0">
+            <div className="space-y-2 mt-auto">
+              {/* Mismo botón primario: VER MI ROL ↔ OCULTAR */}
               <button
                 type="button"
-                onClick={onCover}
-                className="w-full py-4 px-6 rounded-2xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 min-h-[52px] active:scale-[0.98] transition-transform"
+                onClick={toggleReveal}
+                className={primaryBtnClass}
               >
-                <EyeOff size={20} aria-hidden />
+                <EyeOff size={24} aria-hidden />
                 {t.hideReady}
               </button>
               <button
                 type="button"
                 onClick={onHide}
-                className="w-full py-3 px-6 rounded-2xl bg-surface-light text-slate-100 font-bold border border-white/10 flex items-center justify-center gap-2 min-h-[48px] active:scale-[0.98] transition-transform"
+                className="w-full py-3 px-6 rounded-2xl bg-surface-light text-slate-100 font-bold border border-white/10 min-h-[48px] active:scale-[0.98] transition-transform"
               >
                 {t.passToNextPlayer}
               </button>
