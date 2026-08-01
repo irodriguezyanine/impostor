@@ -7,9 +7,6 @@ import { GameCard } from "@/components/GameCard";
 import { ExitConfirmModal } from "@/components/ExitConfirmModal";
 import { DiscussionPanel } from "@/components/DiscussionPanel";
 import { ClueRoundPanel } from "@/components/ClueRoundPanel";
-import { VotingPanel } from "@/components/VotingPanel";
-import { LastWordPanel } from "@/components/LastWordPanel";
-import { RoundResultPanel } from "@/components/RoundResultPanel";
 import { NightScoreboard } from "@/components/NightScoreboard";
 import { ImpostorHistoryBadge } from "@/components/ImpostorHistoryBadge";
 import { ReportWordButton } from "@/components/ReportWordButton";
@@ -20,7 +17,7 @@ import { ChevronDown, X } from "lucide-react";
 import { CATEGORIES, getHintsForWord } from "@/data/categories";
 import type { Player } from "@/lib/players";
 import { historyView } from "@/lib/round-memory";
-import { feedbackPass, feedbackReveal, feedbackVote, feedbackWin } from "@/lib/feedback";
+import { feedbackPass, feedbackReveal, feedbackWin } from "@/lib/feedback";
 import { leaderboard } from "@/lib/scoring";
 
 export default function GamePage() {
@@ -34,15 +31,10 @@ export default function GamePage() {
     repeatCardForPlayerId,
     isHydrated,
     settings,
-    ballots,
-    voteAccusedId,
-    lastWordPlayerId,
-    civiliansWon,
     nightBoard,
     impostorHistory,
     players,
     finishGame,
-    revealAndFinish,
     restartGame,
     revealRole,
     coverRole,
@@ -51,13 +43,9 @@ export default function GamePage() {
     showCardForPlayer,
     clearRepeatCard,
     nextSpeaker,
-    beginVoting,
     skipToReveal,
     setWrittenClue,
     finishClueRound,
-    castVote,
-    resolveVotes,
-    finishLastWord,
   } = useGame();
   const t = useTranslations();
   const [showPlayerPicker, setShowPlayerPicker] = useState(false);
@@ -123,10 +111,21 @@ export default function GamePage() {
   }, [isHydrated, gameState]);
 
   useEffect(() => {
-    if (phase === "result") {
+    if (phase === "ended") {
       feedbackWin(settings.soundEnabled, settings.hapticsEnabled);
     }
   }, [phase, settings.soundEnabled, settings.hapticsEnabled]);
+
+  // Partidas guardadas a mitad de votación: saltar a revelación.
+  useEffect(() => {
+    if (
+      phase === "voting" ||
+      phase === "lastWord" ||
+      phase === "result"
+    ) {
+      skipToReveal();
+    }
+  }, [phase, skipToReveal]);
 
   const getHintForPlayer = useCallback(
     (playerId: string): string | null => {
@@ -405,11 +404,7 @@ export default function GamePage() {
                   turnSeconds={settings.turnSeconds}
                   enableTurnOrder={settings.enableTurnOrder}
                   onNextSpeaker={nextSpeaker}
-                  onStartVoting={() => {
-                    feedbackVote(settings.soundEnabled, settings.hapticsEnabled);
-                    beginVoting();
-                  }}
-                  onSkipReveal={skipToReveal}
+                  onReveal={skipToReveal}
                 />
                 <div className="relative" ref={playerPickerRef}>
                   <button
@@ -452,45 +447,6 @@ export default function GamePage() {
                     </div>
                   )}
                 </div>
-              </motion.div>
-            ) : phase === "voting" ? (
-              <motion.div key="vote" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <VotingPanel
-                  players={shuffledOrder}
-                  ballots={ballots}
-                  onCast={castVote}
-                  onResolve={() => {
-                    feedbackVote(settings.soundEnabled, settings.hapticsEnabled);
-                    resolveVotes();
-                  }}
-                />
-              </motion.div>
-            ) : phase === "lastWord" ? (
-              <motion.div key="last" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <LastWordPanel
-                  playerName={nameOf(lastWordPlayerId) ?? "Acusado"}
-                  onDone={finishLastWord}
-                />
-              </motion.div>
-            ) : phase === "result" ? (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-4"
-              >
-                <RoundResultPanel
-                  civiliansWon={civiliansWon}
-                  accusedName={nameOf(voteAccusedId)}
-                  impostorNames={impostors.map((p) => p.name)}
-                  secretWord={gameState.secretWord}
-                  onRevealDetails={revealAndFinish}
-                  onNextRound={restartGame}
-                  onHome={handleRequestExit}
-                />
-                {settings.enableScoring ? (
-                  <NightScoreboard rows={scoreRows} />
-                ) : null}
               </motion.div>
             ) : phase === "ended" ? (
               <motion.div

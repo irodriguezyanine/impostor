@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MessageCircle, SkipForward, Vote, Eye } from "lucide-react";
+import { Eye, MessageCircle, SkipForward } from "lucide-react";
 
 type Speaker = { id: string; name: string };
 
@@ -12,8 +12,7 @@ type DiscussionPanelProps = {
   turnSeconds: number;
   enableTurnOrder: boolean;
   onNextSpeaker: () => void;
-  onStartVoting: () => void;
-  onSkipReveal: () => void;
+  onReveal: () => void;
 };
 
 function formatCountdown(ms: number): string {
@@ -30,8 +29,7 @@ export function DiscussionPanel({
   turnSeconds,
   enableTurnOrder,
   onNextSpeaker,
-  onStartVoting,
-  onSkipReveal,
+  onReveal,
 }: DiscussionPanelProps) {
   const [now, setNow] = useState(() => Date.now());
   const [turnStartedAt, setTurnStartedAt] = useState(() => Date.now());
@@ -72,9 +70,6 @@ export function DiscussionPanel({
       ) : (
         <div className="text-center">
           <p className="text-2xl font-bold text-slate-100">Debate libre</p>
-          <p className="text-slate-400 text-sm mt-1">
-            Hablen hasta que estén listos para votar
-          </p>
         </div>
       )}
 
@@ -122,19 +117,11 @@ export function DiscussionPanel({
         )}
         <button
           type="button"
-          onClick={onStartVoting}
+          onClick={onReveal}
           className="w-full py-3 px-4 rounded-xl bg-primary text-gray-900 font-bold flex items-center justify-center gap-2 min-h-[48px] hover:shadow-glow transition-all"
         >
-          <Vote size={18} aria-hidden="true" />
-          Ir a votación
-        </button>
-        <button
-          type="button"
-          onClick={onSkipReveal}
-          className="w-full py-3 px-4 rounded-xl text-slate-400 hover:text-slate-200 font-medium flex items-center justify-center gap-2 min-h-[44px]"
-        >
           <Eye size={18} aria-hidden="true" />
-          Revelar sin votar
+          Revelar
         </button>
       </div>
     </div>

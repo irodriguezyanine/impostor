@@ -10,6 +10,8 @@ import {
   suggestImpostorCount,
   isUnbalancedImpostorSetup,
   estimateDurationMinutes,
+  DEFAULT_SETTINGS,
+  applyModeDefaults,
 } from "@/lib/game-settings";
 
 describe("votación", () => {
@@ -65,5 +67,15 @@ describe("settings helpers", () => {
     expect(suggestImpostorCount(7)).toBe(2);
     expect(isUnbalancedImpostorSetup(4, 2)).toBe(true);
     expect(estimateDurationMinutes(6, 120)).toBeGreaterThan(3);
+  });
+
+  it("deja la votación apagada por defecto y en todos los modos", () => {
+    expect(DEFAULT_SETTINGS.enableVoting).toBe(false);
+    expect(applyModeDefaults(DEFAULT_SETTINGS, "classic").enableVoting).toBe(
+      false
+    );
+    expect(applyModeDefaults(DEFAULT_SETTINGS, "mrWhite").enableVoting).toBe(
+      false
+    );
   });
 });

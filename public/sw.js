@@ -1,7 +1,7 @@
 /* Offline shell for Impostor Chile PWA.
  * Network-first: nunca servir HTML/JS viejo (evita el botón espejado en caché).
  */
-const CACHE = "impostor-v5";
+const CACHE = "impostor-v6";
 const PRECACHE = ["/manifest.json", "/logo.png"];
 
 self.addEventListener("install", (event) => {

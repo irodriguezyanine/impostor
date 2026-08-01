@@ -353,8 +353,10 @@ export function gameReducer(
       if (next >= state.gameState.speakOrder.length) {
         return {
           ...state,
-          phase: state.settings.enableVoting ? "voting" : "ended",
+          phase: "ended",
           gameState: { ...state.gameState, speakIndex: 0 },
+          nightBoard: recordScore(state, false, null),
+          civiliansWon: false,
         };
       }
       return {
@@ -381,7 +383,14 @@ export function gameReducer(
       return { ...state, phase: "discussing" };
 
     case "BEGIN_VOTING":
-      return { ...state, phase: "voting", ballots: [] };
+      // La votación se retiró: revelar directamente.
+      return {
+        ...state,
+        phase: "ended",
+        ballots: [],
+        nightBoard: recordScore(state, false, null),
+        civiliansWon: false,
+      };
 
     case "CAST_VOTE": {
       const ballots = [

@@ -46,7 +46,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   turnSeconds: 20,
   enableTurnOrder: true,
   enableWrittenClues: false,
-  enableVoting: true,
+  enableVoting: false,
   enableLastWord: true,
   enableScoring: true,
   soundEnabled: false,
@@ -114,7 +114,7 @@ export function applyModeDefaults(
     case "falseHint":
       return { ...base, difficulty: "hard" };
     case "mrWhite":
-      return { ...base, enableVoting: true };
+      return base;
     case "closeWord":
       return { ...base, difficulty: "medium" };
     default:
@@ -128,7 +128,9 @@ export function loadSettings(): GameSettings {
     const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (!raw) return DEFAULT_SETTINGS;
     const parsed = JSON.parse(raw) as Partial<GameSettings>;
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    // La votación se retiró del flujo final; se fuerza apagada también en
+    // ajustes guardados antes del cambio.
+    return { ...DEFAULT_SETTINGS, ...parsed, enableVoting: false };
   } catch {
     return DEFAULT_SETTINGS;
   }

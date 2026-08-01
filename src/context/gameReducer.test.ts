@@ -215,6 +215,14 @@ describe("paso del teléfono", () => {
     }
     expect(state.phase).toBe("discussing");
   });
+
+  it("al terminar la discusión revela sin pasar por votación", () => {
+    let state = startedState(["Ana", "Bea", "Caro"]);
+    state = { ...state, phase: "discussing" };
+    state = gameReducer(state, { type: "BEGIN_VOTING" });
+    expect(state.phase).toBe("ended");
+    expect(state.phase).not.toBe("voting");
+  });
 });
 
 describe("repetir y terminar", () => {

@@ -49,7 +49,6 @@ type ToggleKey = keyof Pick<
   GameSettings,
   | "enableTurnOrder"
   | "enableWrittenClues"
-  | "enableVoting"
   | "enableLastWord"
   | "enableScoring"
   | "soundEnabled"
@@ -61,7 +60,6 @@ type ToggleKey = keyof Pick<
 const TOGGLES: { key: ToggleKey; label: string }[] = [
   { key: "enableTurnOrder", label: "Orden de turnos" },
   { key: "enableWrittenClues", label: "Pistas escritas" },
-  { key: "enableVoting", label: "Votación" },
   { key: "enableLastWord", label: "Última palabra" },
   { key: "enableScoring", label: "Puntuación" },
   { key: "soundEnabled", label: "Sonido" },
