@@ -61,7 +61,7 @@ export const CHANGELOG = [
     version: "1.2.0",
     date: "2026-07-30",
     items: [
-      "Timer, turnos de habla y votación estructurada",
+      "Timer y turnos de habla",
       "Marcador de la noche y modos (Blitz, Mr. White, pista falsa…)",
       "Nuevas categorías y PWA offline",
       "Rotación equitativa de impostores",
